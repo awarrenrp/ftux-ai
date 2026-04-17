@@ -354,15 +354,6 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
         )}
       </div>
 
-      {/* Trial banner */}
-      <div style={{
-        padding: '7px 14px', background: colors.gray50,
-        borderTop: `1px solid ${colors.gray150}`,
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0,
-      }}>
-        <span style={{ fontSize: 12, color: colors.gray500 }}>You have <strong>14 days left</strong> on your trial</span>
-        <span style={{ fontSize: 12, fontWeight: 600, color: colors.primary, cursor: 'pointer' }}>Purchase</span>
-      </div>
 
       {/* ── FTUX prompt pills ─────────────────────────────────────────────── */}
       <AnimatePresence>
@@ -430,7 +421,29 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
       </AnimatePresence>
 
       {/* Input area */}
-      <div style={{ padding: '10px 12px 6px', borderTop: `1px solid ${colors.gray150}`, flexShrink: 0 }}>
+      <div style={{ padding: '16px 12px 6px', borderTop: `1px solid ${colors.gray150}`, flexShrink: 0 }}>
+        {/* Trial notification — floats on top of the input box */}
+        <div style={{ position: 'relative' }}>
+          <div style={{
+            position: 'absolute',
+            top: -11,
+            left: 10,
+            zIndex: 2,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '3px 10px',
+            background: colors.white,
+            border: `1px solid ${colors.gray200}`,
+            borderRadius: radii.full,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+            fontSize: 11.5,
+            color: colors.gray500,
+            whiteSpace: 'nowrap',
+          }}>
+            You have <strong style={{ color: colors.gray700 }}>14 days left</strong> on your trial
+            <span style={{ color: colors.primary, fontWeight: 600, cursor: 'pointer', marginLeft: 2 }}>Purchase</span>
+          </div>
         <motion.div
           id="prompt-input"
           animate={displayPhase === 'done' ? {
@@ -467,6 +480,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
             </button>
           </div>
         </motion.div>
+        </div>{/* end relative trial wrapper */}
         <p style={{ fontSize: 10.5, color: colors.gray400, textAlign: 'center', marginTop: 6, paddingBottom: 2 }}>
           Rippling AI results may be inaccurate. Review before acting.
         </p>
@@ -482,7 +496,8 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.22 }}
             style={{
-              borderTop: `1px solid ${colors.gray100}`,
+              borderTop: `1px solid ${colors.gray150}`,
+              background: colors.gray50,
               padding: '8px 12px 10px',
               flexShrink: 0,
             }}
