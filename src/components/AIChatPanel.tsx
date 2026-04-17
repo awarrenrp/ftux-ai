@@ -173,13 +173,15 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
           <button style={{ ...iconBtn, color: colors.gray400 }}><PlusSquareIcon /></button>
           <button style={{ ...iconBtn, color: colors.gray400 }}><ExpandIcon /></button>
           <motion.button
-            onClick={demoMode && displayPhase !== 'idle' ? resetConversation : undefined}
-            animate={demoMode && displayPhase !== 'idle'
-              ? { color: colors.gray700, backgroundColor: colors.gray100 }
-              : { color: colors.gray400, backgroundColor: 'transparent' }
-            }
-            whileHover={demoMode && displayPhase !== 'idle' ? { backgroundColor: colors.gray200 } : {}}
-            style={{ ...iconBtn, borderRadius: 6, transition: 'background 0.15s', cursor: demoMode && displayPhase !== 'idle' ? 'pointer' : 'default' }}
+            onClick={demoMode ? resetConversation : undefined}
+            whileHover={demoMode ? { backgroundColor: colors.gray150, color: colors.gray900 } : {}}
+            whileTap={demoMode ? { scale: 0.92 } : {}}
+            style={{
+              ...iconBtn,
+              borderRadius: 6,
+              color: demoMode ? colors.gray600 : colors.gray400,
+              cursor: demoMode ? 'pointer' : 'default',
+            }}
           >✕</motion.button>
         </div>
       </div>
