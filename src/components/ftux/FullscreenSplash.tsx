@@ -154,6 +154,33 @@ export function FullscreenSplash({ onComplete, onGetStarted }: FullscreenSplashP
             overflow: 'hidden',
           }}
         >
+          {/* Close button */}
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 0.4 }}
+            whileHover={{ scale: 1.1, background: 'rgba(255,255,255,0.15)' }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => { setExiting(true); setTimeout(onComplete, 550); }}
+            style={{
+              position: 'absolute',
+              top: 20,
+              right: 24,
+              zIndex: 10,
+              width: 32,
+              height: 32,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              color: 'rgba(255,255,255,0.8)',
+              fontSize: 14,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >✕</motion.button>
+
           {/* Radial glow behind content */}
           <motion.div
             initial={{ opacity: 0, scale: 0.6 }}
