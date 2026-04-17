@@ -146,6 +146,14 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
     });
   }
 
+  function resetConversation() {
+    clearTimers();
+    setConvPrompt(null);
+    setConvPhase('idle');
+    setVisibleLines(0);
+    setDismissedPills(new Set()); // restore pills so user can try again
+  }
+
   // Derived display values — prevent a one-frame idle flash when autoFirePrompt first lands.
   const displayPhase: ConvPhase = autoFirePrompt && convPhase === 'idle' ? 'thinking' : convPhase;
   const displayPrompt: string | null = convPrompt ?? autoFirePrompt ?? null;
@@ -164,7 +172,15 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <button style={{ ...iconBtn, color: colors.gray400 }}><PlusSquareIcon /></button>
           <button style={{ ...iconBtn, color: colors.gray400 }}><ExpandIcon /></button>
-          <button style={{ ...iconBtn, color: colors.gray400 }}>✕</button>
+          <motion.button
+            onClick={demoMode && displayPhase !== 'idle' ? resetConversation : undefined}
+            animate={demoMode && displayPhase !== 'idle'
+              ? { color: colors.gray700, backgroundColor: colors.gray100 }
+              : { color: colors.gray400, backgroundColor: 'transparent' }
+            }
+            whileHover={demoMode && displayPhase !== 'idle' ? { backgroundColor: colors.gray200 } : {}}
+            style={{ ...iconBtn, borderRadius: 6, transition: 'background 0.15s', cursor: demoMode && displayPhase !== 'idle' ? 'pointer' : 'default' }}
+          >✕</motion.button>
         </div>
       </div>
 
