@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { colors, shadows, radii } from './lib/tokens';
 import { springs, buttonTap, fadeIn } from './lib/animations';
 import { FullscreenSplash } from './components/ftux/FullscreenSplash';
 import { ModalWalkthrough } from './components/ftux/ModalWalkthrough';
 import { SpotlightTour, RipplingShell } from './components/ftux/SpotlightTour';
-import { WelcomeModal } from './components/ftux/WelcomeModal';
+import { WelcomeModal, PromptCardStack } from './components/ftux/WelcomeModal';
+import type { PromptCard } from './components/ftux/WelcomeModal';
 
 type Variant = 'splash' | 'modal' | 'spotlight' | 'welcome';
 
@@ -29,6 +30,7 @@ export default function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [splashExited, setSplashExited] = useState(false);
   const [splashRemainingPrompts, setSplashRemainingPrompts] = useState<string[]>([]);
+  const [splashFirePrompt, setSplashFirePrompt] = useState<string | null>(null);
   // Welcome variant: after the user clicks "Use this", keep the shell visible
   // and auto-fire the selected prompt in the chat panel.
   const [welcomePrompt, setWelcomePrompt] = useState<string | null>(null);
@@ -39,6 +41,7 @@ export default function App() {
     setSplashDone(false);
     setSplashExited(false);
     setSplashRemainingPrompts([]);
+    setSplashFirePrompt(null);
     setWelcomePrompt(null);
   }
 
@@ -47,6 +50,7 @@ export default function App() {
     setSplashDone(false);
     setSplashExited(false);
     setSplashRemainingPrompts([]);
+    setSplashFirePrompt(null);
     setWelcomePrompt(null);
   }
 
@@ -241,8 +245,12 @@ export default function App() {
               >
                 <RipplingShell
                   chatDemoActive={active === 'splash' && splashDone && !splashExited}
-                  ftuxPrompts={active === 'splash' && splashDone && !splashExited ? splashRemainingPrompts : undefined}
-                  autoFirePrompt={active === 'welcome' ? (welcomePrompt ?? undefined) : undefined}
+                  demoIdle={active === 'splash' && splashDone && !splashExited && !splashFirePrompt}
+                  autoFirePrompt={
+                    active === 'welcome' ? (welcomePrompt ?? undefined)
+                      : active === 'splash' && splashDone && splashFirePrompt ? splashFirePrompt
+                      : undefined
+                  }
                   inputSuggestions={active === 'splash' && splashExited ? splashRemainingPrompts : undefined}
                   buildReveal={active === 'splash' ? splashDone : undefined}
                 />
@@ -259,7 +267,15 @@ export default function App() {
                   />
                 )}
 
-                {/* intentionally empty — close button rendered at root level */}
+                {/* Splash follow-up cards — float above the input bar after splash exits */}
+                {active === 'splash' && splashDone && !splashExited && (
+                  <SplashFollowUpCards
+                    key={`splash-cards-${key}`}
+                    onSelect={(prompt) => setSplashFirePrompt(prompt)}
+                    onDismiss={handleExitDemo}
+                  />
+                )}
+
                 {active === 'modal'     && <ModalWalkthrough key={`modal-${key}`}     onComplete={reset} />}
                 {active === 'spotlight' && <SpotlightTour    key={`spotlight-${key}`} onComplete={reset} />}
                 {active === 'welcome' && (
@@ -275,6 +291,77 @@ export default function App() {
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+// ─── Splash follow-up card stack (no overlay) ────────────────────────────────
+
+const SPLASH_PROMPT_CARDS: PromptCard[] = [
+  {
+    id: 'capabilities',
+    segments: [{ text: 'What can I do with Rippling AI?', type: 'text' }],
+    caption: 'Explore everything the copilot can do across HR, payroll, benefits, and IT',
+  },
+  {
+    id: 'paychecks',
+    segments: [{ text: 'Compare my last few paychecks', type: 'text' }],
+    caption: 'Pulls your actual payroll records and charts the differences side-by-side',
+  },
+  {
+    id: 'pto',
+    segments: [{ text: "Who hasn't taken PTO this year?", type: 'text' }],
+    caption: 'Queries your whole team and lists everyone with zero days used',
+  },
+];
+
+function SplashFollowUpCards({
+  onSelect,
+  onDismiss,
+}: {
+  onSelect: (prompt: string) => void;
+  onDismiss: () => void;
+}) {
+  const [inputRect, setInputRect] = useState<DOMRect | null>(null);
+
+  useEffect(() => {
+    function measure() {
+      const el = document.getElementById('prompt-input');
+      if (el) setInputRect(el.getBoundingClientRect());
+    }
+    const t = setTimeout(measure, 80);
+    window.addEventListener('resize', measure);
+    return () => { clearTimeout(t); window.removeEventListener('resize', measure); };
+  }, []);
+
+  const style: React.CSSProperties = inputRect
+    ? { position: 'fixed', bottom: window.innerHeight - inputRect.top + 12, left: inputRect.left, width: inputRect.width, zIndex: 202 }
+    : { position: 'fixed', bottom: 120, right: 24, width: 340, zIndex: 202 };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 8, scale: 0.96, transition: { duration: 0.22 } }}
+      transition={springs.gentle}
+      style={{ ...style, padding: '0 2px' }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
+        <motion.button
+          whileHover={{ background: colors.gray200 }}
+          onClick={onDismiss}
+          style={{
+            width: 22, height: 22, borderRadius: '50%',
+            background: 'rgba(255,255,255,0.92)',
+            backdropFilter: 'blur(6px)',
+            border: `1px solid ${colors.gray200}`,
+            cursor: 'pointer', fontSize: 9, color: colors.gray500,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: shadows.sm,
+          }}
+        >✕</motion.button>
+      </div>
+      <PromptCardStack prompts={SPLASH_PROMPT_CARDS} onSelect={onSelect} />
+    </motion.div>
   );
 }
 

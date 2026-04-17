@@ -19,13 +19,13 @@ interface FullscreenSplashProps {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const promptBubbles = [
-  { text: "What can I do with Rippling AI?",  delay: 0.5, x: '-6%' },
-  { text: "Compare my last few paychecks",    delay: 0.9, x: '5%'  },
-  { text: "Who hasn't taken PTO this year?",  delay: 1.3, x: '-3%' },
-  { text: "What will it cost me to visit the doctor?", delay: 1.7, x: '8%'  },
-  { text: "Show me my vacation on a graph",   delay: 2.1, x: '0%'  },
-  { text: "What can I do with Rippling AI?",  delay: 2.5, x: '-5%' },
-  { text: "Compare my last few paychecks",    delay: 2.9, x: '6%'  },
+  { text: "What can I do with Rippling AI?",           delay: 0.5, x: '-38%' },
+  { text: "Compare my last few paychecks",             delay: 0.9, x: '30%'  },
+  { text: "Who hasn't taken PTO this year?",           delay: 1.3, x: '-32%' },
+  { text: "What will it cost me to visit the doctor?", delay: 1.7, x: '26%'  },
+  { text: "Show me my vacation on a graph",            delay: 2.1, x: '-40%' },
+  { text: "What can I do with Rippling AI?",           delay: 2.5, x: '34%'  },
+  { text: "Compare my last few paychecks",             delay: 2.9, x: '-28%' },
 ];
 
 const headlineWords = ['Welcome', 'to', 'Rippling', 'AI'];

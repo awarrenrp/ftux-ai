@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { colors, shadows, radii } from '../lib/tokens';
-import { staggerContainer, staggerItem, springs, buttonTap, ease } from '../lib/animations';
+import { staggerContainer, staggerItem, springs, ease } from '../lib/animations';
 
 interface AIChatPanelProps {
   showSuggestions?: boolean;
@@ -12,6 +12,8 @@ interface AIChatPanelProps {
   autoFirePrompt?: string;
   /** When provided, shows prompt chips inline above the input bar (post-FTUX copilot mode) */
   inputSuggestions?: string[];
+  /** Forces demo idle state — waiting for an external card selection (e.g. splash follow-up) */
+  demoIdle?: boolean;
 }
 
 // ─── Response data ────────────────────────────────────────────────────────────
@@ -90,12 +92,11 @@ const suggestedPrompts = [
 
 type ConvPhase = 'idle' | 'thinking' | 'streaming' | 'done';
 
-export function AIChatPanel({ showSuggestions = true, highlightInput = false, ftuxPrompts, autoFirePrompt, inputSuggestions }: AIChatPanelProps) {
-  const demoMode = !!ftuxPrompts || !!autoFirePrompt || !!inputSuggestions;
+export function AIChatPanel({ showSuggestions = true, highlightInput = false, ftuxPrompts, autoFirePrompt, inputSuggestions, demoIdle }: AIChatPanelProps) {
+  const demoMode = !!ftuxPrompts || !!autoFirePrompt || !!inputSuggestions || !!demoIdle;
 
   // Pill state — track individually so clicking one prompt keeps the others visible
   const [dismissedPills, setDismissedPills] = useState<Set<number>>(new Set());
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const activePillCount = (ftuxPrompts?.length ?? 0) - dismissedPills.size;
   const showPills = !!ftuxPrompts && activePillCount > 0 && !autoFirePrompt && !inputSuggestions;
 
@@ -140,10 +141,8 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
   }, [autoFirePrompt]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handlePillClick(text: string, i: number) {
-    setCopiedIndex(i);
     after(280, () => {
       setDismissedPills(prev => new Set([...prev, i]));
-      setCopiedIndex(null);
       clearTimers();
       startConversation(text, 1400);
     });
@@ -205,7 +204,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
               <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ width: 40, height: 40, borderRadius: 10 }} />
               <p style={{ fontSize: 14, fontWeight: 600, color: colors.gray700 }}>Rippling AI</p>
               <p style={{ fontSize: 13, color: colors.gray400, textAlign: 'center', maxWidth: 200, lineHeight: 1.55 }}>
-                Select a prompt below to see what happens
+                Select a prompt to see what happens
               </p>
             </motion.div>
           )}
@@ -352,66 +351,27 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
       </div>
 
 
-      {/* ── FTUX prompt pills ─────────────────────────────────────────────── */}
+      {/* ── FTUX prompt card stack ────────────────────────────────────────── */}
       <AnimatePresence>
         {showPills && (
           <motion.div
-            key="ftux-pills"
+            key="ftux-stack"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0, transition: { duration: 0.22, ease: ease.in } }}
             transition={{ duration: 0.28, ease: ease.out }}
             style={{ overflow: 'hidden', flexShrink: 0 }}
           >
-            <div style={{ padding: '10px 12px 8px', borderTop: `1px solid ${colors.gray150}`, background: colors.gray50 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
-                <span style={{ fontSize: 10.5, fontWeight: 700, color: colors.gray400, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                  Try asking
-                </span>
-                <motion.button
-                  whileHover={{ backgroundColor: colors.gray200 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setDismissedPills(new Set(ftuxPrompts?.map((_, i) => i) ?? []))}
-                  style={{
-                    width: 20, height: 20, borderRadius: '50%', background: colors.gray200,
-                    border: 'none', cursor: 'pointer', display: 'flex',
-                    alignItems: 'center', justifyContent: 'center', fontSize: 10, color: colors.gray500,
-                  }}
-                >✕</motion.button>
-              </div>
-
-              <motion.div
-                variants={staggerContainer(0.08, 0.05)}
-                initial="hidden"
-                animate="visible"
-                style={{ display: 'flex', flexDirection: 'column', gap: 5 }}
-              >
-                {(ftuxPrompts ?? []).map((prompt, i) => {
-                  if (dismissedPills.has(i)) return null;
-                  const isCopied = copiedIndex === i;
-                  return (
-                    <motion.button
-                      key={prompt}
-                      variants={{ hidden: { opacity: 0, y: 8 }, visible: { opacity: 1, y: 0, transition: springs.gentle } }}
-                      whileHover={{ backgroundColor: colors.primaryLight, borderColor: colors.primary + '50', x: 2 }}
-                      whileTap={buttonTap}
-                      onClick={() => handlePillClick(prompt, i)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 8, width: '100%',
-                        textAlign: 'left', padding: '8px 11px', borderRadius: radii.md,
-                        background: isCopied ? colors.primaryLight : colors.white,
-                        border: `1px solid ${isCopied ? colors.primary + '40' : colors.gray200}`,
-                        fontSize: 13, color: isCopied ? colors.primary : colors.gray700,
-                        cursor: 'pointer', fontWeight: 500, lineHeight: 1.35,
-                        boxShadow: shadows.sm, transition: 'background 0.15s, border-color 0.15s, color 0.15s',
-                      }}
-                    >
-                      <span style={{ fontSize: 10, color: colors.primary, opacity: 0.6, flexShrink: 0 }}>✦</span>
-                      <span style={{ flex: 1 }}>{prompt}</span>
-                    </motion.button>
-                  );
-                })}
-              </motion.div>
+            <div style={{ padding: '10px 12px 14px', borderTop: `1px solid ${colors.gray150}`, background: colors.gray50 }}>
+              <span style={{ fontSize: 10.5, fontWeight: 700, color: colors.gray400, textTransform: 'uppercase', letterSpacing: '0.07em', display: 'block', marginBottom: 10 }}>
+                Try asking
+              </span>
+              <CopilotPromptStack
+                prompts={ftuxPrompts ?? []}
+                dismissedIndices={dismissedPills}
+                onSelect={(prompt, i) => handlePillClick(prompt, i)}
+                onDismiss={(i) => setDismissedPills((prev) => new Set([...prev, i]))}
+              />
             </div>
           </motion.div>
         )}
@@ -631,6 +591,137 @@ function StreamedLine({ line }: { line: ResponseLine }) {
     >
       {line.type === 'bullet' ? `· ${line.text}` : line.text}
     </motion.div>
+  );
+}
+
+// ─── Copilot prompt card stack ────────────────────────────────────────────────
+
+function CopilotPromptStack({
+  prompts,
+  dismissedIndices,
+  onSelect,
+  onDismiss,
+}: {
+  prompts: string[];
+  dismissedIndices: Set<number>;
+  onSelect: (prompt: string, index: number) => void;
+  onDismiss: (index: number) => void;
+}) {
+  const remaining = prompts
+    .map((prompt, i) => ({ prompt, index: i }))
+    .filter(({ index }) => !dismissedIndices.has(index));
+
+  if (remaining.length === 0) return null;
+
+  const visible = remaining.slice(0, 3);
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: 56, marginBottom: remaining.length > 1 ? 22 : 4 }}>
+      <AnimatePresence>
+        {[...visible].reverse().map(({ prompt, index }) => {
+          const depth = visible.findIndex((v) => v.index === index);
+          const isTop = depth === 0;
+
+          return (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.94, y: -5 }}
+              animate={{
+                opacity: 1 - depth * 0.2,
+                scale: 1 - depth * 0.04,
+                y: depth * 9,
+                rotate: depth === 1 ? -1 : depth === 2 ? 0.8 : 0,
+              }}
+              exit={{ x: 220, rotate: 10, opacity: 0, transition: { duration: 0.28, ease: [0.4, 0, 0.8, 1] } }}
+              transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+              style={{
+                position: 'absolute',
+                left: 0, right: 0, top: 0,
+                background: isTop ? colors.white : colors.gray50,
+                border: `1px solid ${isTop ? colors.gray200 : colors.gray150}`,
+                borderRadius: radii.md,
+                padding: '9px 10px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                pointerEvents: isTop ? 'auto' : 'none',
+                cursor: isTop ? 'pointer' : 'default',
+                zIndex: 3 - depth,
+                boxShadow: isTop ? shadows.sm : 'none',
+              }}
+              onClick={isTop ? () => onSelect(prompt, index) : undefined}
+            >
+              <span style={{ fontSize: 10, color: colors.primary, opacity: 0.6, flexShrink: 0 }}>✦</span>
+              <span style={{
+                flex: 1,
+                fontSize: 13,
+                color: isTop ? colors.gray700 : colors.gray400,
+                lineHeight: 1.35,
+                fontWeight: 500,
+              }}>
+                {prompt}
+              </span>
+              {isTop && (
+                <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0 }}>
+                  <motion.button
+                    whileHover={{ backgroundColor: colors.gray200 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => { e.stopPropagation(); onDismiss(index); }}
+                    style={{
+                      width: 22, height: 22, borderRadius: '50%',
+                      background: colors.gray100, border: 'none',
+                      color: colors.gray400, fontSize: 9, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >✕</motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.06 }}
+                    whileTap={{ scale: 0.94 }}
+                    onClick={(e) => { e.stopPropagation(); onSelect(prompt, index); }}
+                    style={{
+                      width: 24, height: 24, borderRadius: '50%',
+                      background: colors.primary, border: 'none',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      boxShadow: shadows.primary, cursor: 'pointer', flexShrink: 0,
+                    }}
+                  >
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6H10M10 6L6.5 2.5M10 6L6.5 9.5" stroke="white" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </motion.button>
+                </div>
+              )}
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
+
+      {/* Dot pager */}
+      {remaining.length > 1 && (
+        <div style={{
+          position: 'absolute',
+          bottom: -20,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          gap: 3,
+          alignItems: 'center',
+        }}>
+          {remaining.map((_, i) => (
+            <div
+              key={i}
+              style={{
+                width: i === 0 ? 14 : 4,
+                height: 3,
+                borderRadius: 999,
+                background: i === 0 ? colors.primary : colors.gray300,
+                transition: 'all 0.3s ease',
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

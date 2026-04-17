@@ -256,12 +256,13 @@ interface RipplingShellProps {
   autoFirePrompt?: string;
   inputSuggestions?: string[];
   buildReveal?: boolean;
+  demoIdle?: boolean;
 }
 
 const NAV_ITEMS = ['Home', 'People', 'Payroll', 'Benefits', 'IT', 'Finance'];
 const TABLE_ROWS = Array.from({ length: 6 });
 
-export function RipplingShell({ chatDemoActive = false, ftuxPrompts, autoFirePrompt, inputSuggestions, buildReveal }: RipplingShellProps) {
+export function RipplingShell({ chatDemoActive = false, ftuxPrompts, autoFirePrompt, inputSuggestions, buildReveal, demoIdle }: RipplingShellProps) {
   // One-way gate: starts hidden when buildReveal mode is active, becomes true on reveal
   const [revealed, setRevealed] = useState(buildReveal === undefined ? true : false);
 
@@ -380,9 +381,11 @@ export function RipplingShell({ chatDemoActive = false, ftuxPrompts, autoFirePro
           ? <AIChatPanel showSuggestions={false} autoFirePrompt={autoFirePrompt} />
           : inputSuggestions
             ? <AIChatPanel showSuggestions={false} inputSuggestions={inputSuggestions} />
-            : chatDemoActive
-              ? <AIChatPanel showSuggestions={false} ftuxPrompts={ftuxPrompts ?? SPLASH_PROMPTS} />
-              : <AIChatPanel showSuggestions={true} />
+            : demoIdle
+              ? <AIChatPanel showSuggestions={false} demoIdle />
+              : chatDemoActive
+                ? <AIChatPanel showSuggestions={false} ftuxPrompts={ftuxPrompts ?? SPLASH_PROMPTS} />
+                : <AIChatPanel showSuggestions={true} />
         }
       </motion.div>
     </div>

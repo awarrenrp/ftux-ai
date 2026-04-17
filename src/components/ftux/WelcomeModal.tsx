@@ -338,9 +338,13 @@ export function WelcomeModal({ onComplete, onPromptSelected }: WelcomeModalProps
   );
 }
 
+// ─── Shared types (exported for reuse) ────────────────────────────────────────
+
+export type { Segment, PromptCard };
+
 // ─── Card stack ───────────────────────────────────────────────────────────────
 
-const CARD_H = 122;
+export const CARD_H = 122;
 
 // Visual config for each stack slot (front → back)
 const SLOT_CFG = [
@@ -349,7 +353,7 @@ const SLOT_CFG = [
   { y: 17, x: 6,  rotate:  2.5, scale: 0.94, opacity: 0.4,  zIndex: 10 }, // back
 ] as const;
 
-function PromptCardStack({
+export function PromptCardStack({
   prompts,
   onSelect,
 }: {
@@ -479,7 +483,7 @@ function PromptCardStack({
 
 // ─── @command inline chip ─────────────────────────────────────────────────────
 
-function CommandChip({ text }: { text: string }) {
+export function CommandChip({ text }: { text: string }) {
   return (
     <span style={{
       display: 'inline-flex',
