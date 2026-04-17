@@ -1,7 +1,7 @@
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
 import { useState, useEffect, useCallback } from 'react';
 import { colors, shadows, radii } from '../../lib/tokens';
-import { backdropVariants, scaleIn, buttonTap, buttonHover } from '../../lib/animations';
+import { backdropVariants, scaleIn, buttonTap, buttonHover, ease } from '../../lib/animations';
 import { AIChatPanel } from '../AIChatPanel';
 
 const SPLASH_PROMPTS = [
@@ -255,26 +255,53 @@ interface RipplingShellProps {
   ftuxPrompts?: string[];
   autoFirePrompt?: string;
   inputSuggestions?: string[];
+  buildReveal?: boolean;
 }
 
-export function RipplingShell({ chatDemoActive = false, ftuxPrompts, autoFirePrompt, inputSuggestions }: RipplingShellProps) {
+const NAV_ITEMS = ['Home', 'People', 'Payroll', 'Benefits', 'IT', 'Finance'];
+const TABLE_ROWS = Array.from({ length: 6 });
+
+export function RipplingShell({ chatDemoActive = false, ftuxPrompts, autoFirePrompt, inputSuggestions, buildReveal }: RipplingShellProps) {
+  // One-way gate: starts hidden when buildReveal mode is active, becomes true on reveal
+  const [revealed, setRevealed] = useState(buildReveal === undefined ? true : false);
+
+  useEffect(() => {
+    if (buildReveal) {
+      const t = setTimeout(() => setRevealed(true), 60);
+      return () => clearTimeout(t);
+    }
+  }, [buildReveal]);
+
+  // Shared transition factory
+  function reveal(delay: number, duration = 0.45): object {
+    return { duration, delay, ease: ease.out };
+  }
+
+  const hidden = { opacity: 0 };
+
   return (
     <div style={{ display: 'flex', height: '100%', background: colors.gray50 }}>
+
       {/* Left sidebar */}
-      <div style={{
-        width: 200,
-        background: colors.gray900,
-        padding: '16px 10px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 3,
-        flexShrink: 0,
-      }}>
+      <motion.div
+        initial={buildReveal !== undefined ? { opacity: 0, x: -18 } : false}
+        animate={revealed ? { opacity: 1, x: 0 } : hidden}
+        transition={reveal(0)}
+        style={{
+          width: 200,
+          background: colors.gray900,
+          padding: '16px 10px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 3,
+          flexShrink: 0,
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 8px', marginBottom: 14 }}>
           <div style={{ width: 26, height: 26, borderRadius: 6, background: colors.primary, flexShrink: 0 }} />
           <span style={{ color: colors.white, fontWeight: 700, fontSize: 14 }}>Rippling</span>
         </div>
-        {['Home', 'People', 'Payroll', 'Benefits', 'IT', 'Finance'].map((item, i) => (
+        {NAV_ITEMS.map((item, i) => (
           <div key={item} style={{
             padding: '8px 10px', borderRadius: 7,
             background: i === 0 ? 'rgba(122,0,93,0.3)' : 'transparent',
@@ -284,38 +311,63 @@ export function RipplingShell({ chatDemoActive = false, ftuxPrompts, autoFirePro
             <span style={{ fontSize: 13, color: i === 0 ? colors.white : colors.gray400, fontWeight: i === 0 ? 600 : 400 }}>{item}</span>
           </div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Main content area */}
       <div style={{ flex: 1, padding: '24px', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+        {/* Header row */}
+        <motion.div
+          initial={buildReveal !== undefined ? { opacity: 0, y: 10 } : false}
+          animate={revealed ? { opacity: 1, y: 0 } : hidden}
+          transition={reveal(0.07)}
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+        >
           <div>
             <div style={{ width: 120, height: 18, background: colors.gray200, borderRadius: 4, marginBottom: 6 }} />
             <div style={{ width: 200, height: 13, background: colors.gray150, borderRadius: 4 }} />
           </div>
           <div style={{ width: 80, height: 32, background: colors.primary, borderRadius: 8, opacity: 0.85 }} />
-        </div>
-        {/* Fake table rows */}
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} style={{
-            height: 40, background: colors.white,
-            borderRadius: 8, border: `1px solid ${colors.gray150}`,
-            display: 'flex', alignItems: 'center', padding: '0 16px', gap: 12,
-          }}>
+        </motion.div>
+
+        {/* Table rows — stagger each one */}
+        {TABLE_ROWS.map((_, i) => (
+          <motion.div
+            key={i}
+            initial={buildReveal !== undefined ? { opacity: 0, y: 8 } : false}
+            animate={revealed ? { opacity: 1, y: 0 } : hidden}
+            transition={reveal(0.13 + i * 0.045, 0.38)}
+            style={{
+              height: 40, background: colors.white,
+              borderRadius: 8, border: `1px solid ${colors.gray150}`,
+              display: 'flex', alignItems: 'center', padding: '0 16px', gap: 12,
+            }}
+          >
             <div style={{ width: 24, height: 24, borderRadius: '50%', background: colors.gray200 }} />
             <div style={{ flex: 1, height: 10, background: colors.gray150, borderRadius: 4 }} />
             <div style={{ width: 80, height: 10, background: colors.gray150, borderRadius: 4 }} />
             <div style={{ width: 60, height: 10, background: colors.gray150, borderRadius: 4 }} />
-          </div>
+          </motion.div>
         ))}
       </div>
 
       {/* AI Chat panel — right side */}
       <motion.div
-        animate={chatDemoActive ? {
-          boxShadow: [`0 0 0 0px ${colors.primaryLight}`, `0 0 0 3px ${colors.primaryMid}`, `0 0 0 2px ${colors.primaryLight}`],
-          transition: { duration: 0.9, ease: 'easeOut' },
-        } : {}}
+        initial={buildReveal !== undefined ? { opacity: 0, x: 20 } : false}
+        animate={
+          revealed
+            ? (chatDemoActive
+                ? {
+                    opacity: 1, x: 0,
+                    boxShadow: [`0 0 0 0px ${colors.primaryLight}`, `0 0 0 3px ${colors.primaryMid}`, `0 0 0 2px ${colors.primaryLight}`],
+                  }
+                : { opacity: 1, x: 0 })
+            : hidden
+        }
+        transition={revealed && chatDemoActive
+          ? { opacity: { ...reveal(0.18) }, x: { ...reveal(0.18) }, boxShadow: { duration: 0.9, ease: 'easeOut', delay: 0.5 } }
+          : reveal(0.18)
+        }
         style={{
           width: 340,
           borderLeft: `1px solid ${colors.gray200}`,

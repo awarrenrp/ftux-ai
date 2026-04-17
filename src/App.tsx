@@ -223,21 +223,30 @@ export default function App() {
               exit="exit"
               style={{ position: 'relative' }}
             >
-              <div style={{
-                height: 'calc(100vh - 110px)',
-                minHeight: 580,
-                borderRadius: 14,
-                overflow: 'hidden',
-                boxShadow: shadows.xl,
-                border: `1px solid ${colors.gray200}`,
-              }}>
+              <motion.div
+                animate={
+                  active === 'splash' && !splashDone
+                    ? { opacity: 0.5, scale: 0.97, y: 14, filter: 'blur(3px)' }
+                    : { opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }
+                }
+                transition={{ duration: 0.65, ease: [0.0, 0.0, 0.2, 1.0] }}
+                style={{
+                  height: 'calc(100vh - 110px)',
+                  minHeight: 580,
+                  borderRadius: 14,
+                  overflow: 'hidden',
+                  boxShadow: shadows.xl,
+                  border: `1px solid ${colors.gray200}`,
+                }}
+              >
                 <RipplingShell
                   chatDemoActive={active === 'splash' && splashDone && !splashExited}
                   ftuxPrompts={active === 'splash' && splashDone && !splashExited ? splashRemainingPrompts : undefined}
                   autoFirePrompt={active === 'welcome' ? (welcomePrompt ?? undefined) : undefined}
                   inputSuggestions={active === 'splash' && splashExited ? splashRemainingPrompts : undefined}
+                  buildReveal={active === 'splash' ? splashDone : undefined}
                 />
-              </div>
+              </motion.div>
 
               <AnimatePresence>
                 {/* Splash only shows its overlay while splashDone is false */}

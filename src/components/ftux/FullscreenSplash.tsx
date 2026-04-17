@@ -127,7 +127,7 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
   function handleGetStarted() {
     setExiting(true);
     const remaining = remainingPrompts.map((p) => p.full);
-    setTimeout(() => onGetStarted ? onGetStarted(remaining) : onComplete(), 550);
+    setTimeout(() => onGetStarted ? onGetStarted(remaining) : onComplete(), 700);
   }
 
   const responseLines = selectedPrompt ? (chatResponses[selectedPrompt] ?? []) : [];
@@ -140,7 +140,7 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
           variants={backdropVariants}
           initial="hidden"
           animate="visible"
-          exit={{ opacity: 0, scale: 0.98, transition: { duration: 0.5, ease: ease.in } }}
+          exit={{ opacity: 0, scale: 1.08, filter: 'blur(18px)', transition: { duration: 0.7, ease: ease.in } }}
           style={{
             position: 'fixed',
             inset: 0,
@@ -150,7 +150,7 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
             alignItems: 'center',
             justifyContent: 'center',
             background: [
-              'radial-gradient(ellipse 60% 50% at 15% 85%, rgba(39,104,189,0.13) 0%, transparent 100%)',
+              'radial-gradient(ellipse 60% 50% at 15% 85%, rgba(39,104,189,0.28) 0%, transparent 100%)',
               'radial-gradient(ellipse 50% 45% at 85% 15%, rgba(45,138,112,0.11) 0%, transparent 100%)',
               'radial-gradient(ellipse 55% 40% at 70% 90%, rgba(235,192,241,0.07) 0%, transparent 100%)',
               'linear-gradient(160deg, #1a0014 0%, #0f000b 40%, #0d0d14 100%)',
@@ -168,7 +168,7 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
             onClick={() => {
               setExiting(true);
               const remaining = remainingPrompts.map((p) => p.full);
-              setTimeout(() => onExitToShell ? onExitToShell(remaining) : onComplete(), 550);
+              setTimeout(() => onExitToShell ? onExitToShell(remaining) : onComplete(), 700);
             }}
             style={{
               position: 'fixed',
@@ -614,7 +614,7 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                               whileTap={buttonTap}
                               onClick={() => {
                                 setExiting(true);
-                                setTimeout(() => onExitToShell ? onExitToShell([]) : onComplete(), 550);
+                                setTimeout(() => onExitToShell ? onExitToShell([]) : onComplete(), 700);
                               }}
                               style={{
                                 padding: '10px 28px',
