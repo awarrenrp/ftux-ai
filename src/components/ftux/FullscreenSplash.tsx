@@ -73,6 +73,7 @@ type ChatPhase = 'thinking' | 'streaming' | 'done';
 
 export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: FullscreenSplashProps) {
   const [exiting, setExiting] = useState(false);
+  const [paused, setPaused] = useState(false);
 
   // Chat state
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
@@ -220,28 +221,36 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
           >
             {promptBubbles.map((bubble, i) => (
               <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 60 }}
-                animate={{ opacity: [0, 0.7, 0.7, 0], y: [60, 0, -60, -120] }}
-                transition={{
-                  delay: bubble.delay,
-                  duration: 4,
-                  times: [0, 0.25, 0.7, 1],
-                  ease: ease.out,
-                  repeat: Infinity,
-                  repeatDelay: promptBubbles.length * 0.3 + 1,
-                }}
+                key={`${i}-${paused}`}
+                initial={{ opacity: 0, y: paused ? 0 : 60 }}
+                animate={
+                  paused
+                    ? { opacity: 0.9, y: 0 }
+                    : { opacity: [0, 0.9, 0.9, 0], y: [60, 0, -60, -120] }
+                }
+                transition={
+                  paused
+                    ? { duration: 0.4, ease: ease.out }
+                    : {
+                        delay: bubble.delay,
+                        duration: 4,
+                        times: [0, 0.25, 0.7, 1],
+                        ease: ease.out,
+                        repeat: Infinity,
+                        repeatDelay: promptBubbles.length * 0.3 + 1,
+                      }
+                }
                 style={{
                   position: 'absolute',
                   top: `${38 + i * 7}%`,
                   left: `calc(50% + ${bubble.x})`,
                   transform: 'translateX(-50%)',
                   padding: '10px 18px',
-                  background: 'rgba(255,255,255,0.07)',
-                  border: '1px solid rgba(255,255,255,0.12)',
+                  background: 'rgba(255,255,255,0.09)',
+                  border: '1px solid rgba(255,255,255,0.15)',
                   borderRadius: radii.full,
                   fontSize: 14,
-                  color: 'rgba(255,255,255,0.75)',
+                  color: 'rgba(255,255,255,0.88)',
                   whiteSpace: 'nowrap',
                   backdropFilter: 'blur(8px)',
                 }}
@@ -250,6 +259,47 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
               </motion.div>
             ))}
           </motion.div>
+
+          {/* Pause / play button — lower-right corner, for accessibility */}
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.35 }}
+            whileHover={{ scale: 1.1, background: 'rgba(255,255,255,0.15)' }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setPaused((p) => !p)}
+            aria-label={paused ? 'Play background animation' : 'Pause background animation'}
+            style={{
+              position: 'fixed',
+              bottom: 72,
+              right: 24,
+              zIndex: 200,
+              width: 36,
+              height: 36,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.1)',
+              border: '1.5px solid rgba(255,255,255,0.2)',
+              color: 'rgba(255,255,255,0.7)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backdropFilter: 'blur(6px)',
+            }}
+          >
+            {paused ? (
+              /* Play icon */
+              <svg width="12" height="13" viewBox="0 0 12 13" fill="none">
+                <path d="M2.5 2L10 6.5L2.5 11V2Z" fill="currentColor"/>
+              </svg>
+            ) : (
+              /* Pause icon */
+              <svg width="11" height="13" viewBox="0 0 11 13" fill="none">
+                <rect x="0.5" y="1" width="3.5" height="11" rx="1" fill="currentColor"/>
+                <rect x="7" y="1" width="3.5" height="11" rx="1" fill="currentColor"/>
+              </svg>
+            )}
+          </motion.button>
 
           {/* ── Main content: intro ↔ chat ─────────────────────────────────── */}
           <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 620, padding: '0 32px' }}>

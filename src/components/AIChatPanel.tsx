@@ -421,22 +421,22 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
       </AnimatePresence>
 
       {/* Input area */}
-      <div style={{ padding: '16px 12px 6px', borderTop: `1px solid ${colors.gray150}`, flexShrink: 0 }}>
+      <div style={{ padding: '22px 12px 6px', borderTop: `1px solid ${colors.gray150}`, flexShrink: 0 }}>
         {/* Trial notification — floats on top of the input box */}
         <div style={{ position: 'relative' }}>
           <div style={{
             position: 'absolute',
-            top: -11,
+            top: -21,
             left: 10,
             zIndex: 2,
             display: 'inline-flex',
             alignItems: 'center',
             gap: 8,
             padding: '3px 10px',
-            background: colors.white,
+            background: colors.gray50,
             border: `1px solid ${colors.gray200}`,
-            borderRadius: radii.full,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.07)',
+            borderRadius: '8px 8px 0 0',
+            boxShadow: '0 -1px 4px rgba(0,0,0,0.05)',
             fontSize: 11.5,
             color: colors.gray500,
             whiteSpace: 'nowrap',
@@ -509,14 +509,15 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
               </span>
               <button
                 onClick={() => setSuggestionsHidden(true)}
+                aria-label="Dismiss suggestions"
                 style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  color: colors.gray400, fontSize: 12, lineHeight: 1,
-                  padding: '2px 4px', borderRadius: 4,
-                  display: 'flex', alignItems: 'center', gap: 3,
+                  width: 24, height: 24, borderRadius: '50%',
+                  background: colors.gray200, border: 'none', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: colors.gray500, fontSize: 13, lineHeight: 1, flexShrink: 0,
                 }}
               >
-                <span style={{ fontSize: 10 }}>✕</span> Dismiss
+                ✕
               </button>
             </div>
             {/* Chips */}
