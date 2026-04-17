@@ -551,51 +551,82 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                         transition={{ duration: 0.4, ease: ease.out }}
                         style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 20 }}
                       >
-                        <p style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: 'rgba(255,255,255,0.3)',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.08em',
-                          marginBottom: 10,
-                          textAlign: 'center',
-                        }}>
-                          Ask another question
-                        </p>
-                        <motion.div
-                          initial="hidden"
-                          animate="visible"
-                          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.09 } } }}
-                          style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}
-                        >
-                          {remainingPrompts.map((p) => {
-                            const originalIndex = samplePrompts.findIndex((s) => s.label === p.label);
-                            return (
-                              <motion.button
-                                key={p.label}
-                                variants={{
-                                  hidden: { opacity: 0, scale: 0.85 },
-                                  visible: { opacity: 1, scale: 1, transition: springs.bouncy },
-                                }}
-                                whileHover={{ scale: 1.04, background: 'rgba(255,255,255,0.12)' }}
-                                whileTap={buttonTap}
-                                onClick={() => handlePromptClick(originalIndex)}
-                                style={{
-                                  padding: '7px 14px',
-                                  borderRadius: radii.full,
-                                  background: 'rgba(255,255,255,0.06)',
-                                  border: '1px solid rgba(255,255,255,0.12)',
-                                  color: 'rgba(255,255,255,0.65)',
-                                  fontSize: 13,
-                                  cursor: 'pointer',
-                                  backdropFilter: 'blur(8px)',
-                                }}
-                              >
-                                {p.label}
-                              </motion.button>
-                            );
-                          })}
-                        </motion.div>
+                        {remainingPrompts.length > 0 ? (
+                          <>
+                            <p style={{
+                              fontSize: 11,
+                              fontWeight: 600,
+                              color: 'rgba(255,255,255,0.3)',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.08em',
+                              marginBottom: 10,
+                              textAlign: 'center',
+                            }}>
+                              Ask another question
+                            </p>
+                            <motion.div
+                              initial="hidden"
+                              animate="visible"
+                              variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.09 } } }}
+                              style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}
+                            >
+                              {remainingPrompts.map((p) => {
+                                const originalIndex = samplePrompts.findIndex((s) => s.label === p.label);
+                                return (
+                                  <motion.button
+                                    key={p.label}
+                                    variants={{
+                                      hidden: { opacity: 0, scale: 0.85 },
+                                      visible: { opacity: 1, scale: 1, transition: springs.bouncy },
+                                    }}
+                                    whileHover={{ scale: 1.04, background: 'rgba(255,255,255,0.12)' }}
+                                    whileTap={buttonTap}
+                                    onClick={() => handlePromptClick(originalIndex)}
+                                    style={{
+                                      padding: '7px 14px',
+                                      borderRadius: radii.full,
+                                      background: 'rgba(255,255,255,0.06)',
+                                      border: '1px solid rgba(255,255,255,0.12)',
+                                      color: 'rgba(255,255,255,0.65)',
+                                      fontSize: 13,
+                                      cursor: 'pointer',
+                                      backdropFilter: 'blur(8px)',
+                                    }}
+                                  >
+                                    {p.label}
+                                  </motion.button>
+                                );
+                              })}
+                            </motion.div>
+                          </>
+                        ) : (
+                          <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <motion.button
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={springs.bouncy}
+                              whileHover={{ scale: 1.04, background: colors.primaryDark }}
+                              whileTap={buttonTap}
+                              onClick={() => {
+                                setExiting(true);
+                                setTimeout(() => onExitToShell ? onExitToShell([]) : onComplete(), 550);
+                              }}
+                              style={{
+                                padding: '10px 28px',
+                                borderRadius: radii.full,
+                                background: colors.primary,
+                                border: 'none',
+                                color: '#ffffff',
+                                fontSize: 14,
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                boxShadow: '0 4px 20px rgba(122,0,93,0.5)',
+                              }}
+                            >
+                              Get started →
+                            </motion.button>
+                          </div>
+                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
