@@ -232,8 +232,8 @@ export default function App() {
                 border: `1px solid ${colors.gray200}`,
               }}>
                 <RipplingShell
-                  chatDemoActive={active === 'splash' && splashDone}
-                  ftuxPrompts={active === 'splash' && splashDone ? splashRemainingPrompts : undefined}
+                  chatDemoActive={active === 'splash' && splashDone && !splashExited}
+                  ftuxPrompts={active === 'splash' && splashDone && !splashExited ? splashRemainingPrompts : undefined}
                   autoFirePrompt={active === 'welcome' ? (welcomePrompt ?? undefined) : undefined}
                   inputSuggestions={active === 'splash' && splashExited ? splashRemainingPrompts : undefined}
                 />
