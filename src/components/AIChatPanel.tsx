@@ -30,13 +30,10 @@ const PAYCHECK_BARS: ChartBar[] = [
 const RESPONSES: Record<string, ResponseLine[]> = {
   // ── Splash variant prompts ──
   "What can I do with Rippling AI?": [
-    { type: 'heading', text: 'What Rippling AI can do' },
-    { type: 'body',    text: 'Ask anything about your HR, Payroll, Benefits, and IT data — in plain English.' },
-    { type: 'bullet',  text: 'Benefits — coverage, deductibles, costs, open enrollment' },
-    { type: 'bullet',  text: 'Payroll — pay history, tax summaries, compensation trends' },
-    { type: 'bullet',  text: 'People — PTO, headcount, org changes, onboarding status' },
-    { type: 'bullet',  text: 'IT — device inventory, app access, software usage' },
-    { type: 'note',    text: 'Tip: use @ to scope — e.g. @payroll or @benefits' },
+    { type: 'heading', text: "Here's what Rippling AI can do" },
+    { type: 'bullet',  text: 'Answer questions about your HR, payroll, benefits, and IT data — in plain English' },
+    { type: 'bullet',  text: 'Create charts and visualizations to help you tell your story' },
+    { type: 'bullet',  text: 'Use the @ command to reference specific people, requisitions, or other objects' },
   ],
   "Compare my last few paychecks": [
     { type: 'heading', text: 'Your Last 4 Paychecks' },
