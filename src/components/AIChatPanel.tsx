@@ -102,6 +102,12 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
   const activePillCount = (ftuxPrompts?.length ?? 0) - dismissedPills.size;
   const showPills = !!ftuxPrompts && activePillCount > 0 && !autoFirePrompt && !inputSuggestions;
 
+  // Copilot suggestion chips (post-splash): individually dismissable + global dismiss
+  const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set());
+  const [suggestionsHidden, setSuggestionsHidden] = useState(false);
+  const visibleSuggestions = (inputSuggestions ?? []).filter((s) => !dismissedSuggestions.has(s));
+  const showSuggestionChips = !!inputSuggestions && !suggestionsHidden && visibleSuggestions.length > 0;
+
   // Conversation state (demo mode only)
   const [convPrompt, setConvPrompt] = useState<string | null>(null);
   const [convPhase, setConvPhase] = useState<ConvPhase>('idle');
@@ -425,42 +431,6 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
 
       {/* Input area */}
       <div style={{ padding: '10px 12px 6px', borderTop: `1px solid ${colors.gray150}`, flexShrink: 0 }}>
-        {/* Suggestion chips — shown in copilot mode when no conversation is active */}
-        <AnimatePresence>
-          {inputSuggestions && displayPhase === 'idle' && (
-            <motion.div
-              key="input-chips"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 4 }}
-              transition={{ duration: 0.2 }}
-              style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}
-            >
-              {inputSuggestions.map((prompt) => (
-                <motion.button
-                  key={prompt}
-                  whileHover={{ background: colors.primaryLight, borderColor: `${colors.primary}50`, color: colors.primaryDark }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => { clearTimers(); startConversation(prompt, 1400); }}
-                  style={{
-                    padding: '5px 11px',
-                    borderRadius: radii.full,
-                    background: colors.white,
-                    border: `1px solid ${colors.gray200}`,
-                    fontSize: 12,
-                    color: colors.gray600,
-                    cursor: 'pointer',
-                    fontWeight: 500,
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.15s',
-                  }}
-                >
-                  {prompt}
-                </motion.button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
         <motion.div
           id="prompt-input"
           animate={displayPhase === 'done' ? {
@@ -501,6 +471,78 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
           Rippling AI results may be inaccurate. Review before acting.
         </p>
       </div>
+
+      {/* Copilot suggestion chips — below the input, individually dismissable */}
+      <AnimatePresence>
+        {showSuggestionChips && (
+          <motion.div
+            key="suggestion-chips"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.22 }}
+            style={{
+              borderTop: `1px solid ${colors.gray100}`,
+              padding: '8px 12px 10px',
+              flexShrink: 0,
+            }}
+          >
+            {/* Header row */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: colors.gray400, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                Try a prompt
+              </span>
+              <button
+                onClick={() => setSuggestionsHidden(true)}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: colors.gray400, fontSize: 12, lineHeight: 1,
+                  padding: '2px 4px', borderRadius: 4,
+                  display: 'flex', alignItems: 'center', gap: 3,
+                }}
+              >
+                <span style={{ fontSize: 10 }}>✕</span> Dismiss
+              </button>
+            </div>
+            {/* Chips */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              <AnimatePresence>
+                {visibleSuggestions.map((prompt) => (
+                  <motion.button
+                    key={prompt}
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.85 }}
+                    transition={{ duration: 0.18 }}
+                    whileHover={{ background: colors.primaryLight, borderColor: `${colors.primary}50`, color: colors.primaryDark }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => {
+                      setDismissedSuggestions((prev) => new Set([...prev, prompt]));
+                      clearTimers();
+                      startConversation(prompt, 1400);
+                    }}
+                    style={{
+                      padding: '5px 11px',
+                      borderRadius: radii.full,
+                      background: colors.white,
+                      border: `1px solid ${colors.gray200}`,
+                      fontSize: 12,
+                      color: colors.gray600,
+                      cursor: 'pointer',
+                      fontWeight: 500,
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    {prompt}
+                  </motion.button>
+                ))}
+              </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
