@@ -19,13 +19,13 @@ interface FullscreenSplashProps {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const promptBubbles = [
-  { text: "What can I do with Rippling AI?",           delay: 0.5, x: '-38%' },
-  { text: "Compare my last few paychecks",             delay: 0.9, x: '30%'  },
-  { text: "Who hasn't taken PTO this year?",           delay: 1.3, x: '-32%' },
-  { text: "What will it cost me to visit the doctor?", delay: 1.7, x: '26%'  },
-  { text: "Show me my vacation on a graph",            delay: 2.1, x: '-40%' },
-  { text: "What can I do with Rippling AI?",           delay: 2.5, x: '34%'  },
-  { text: "Compare my last few paychecks",             delay: 2.9, x: '-28%' },
+  { text: "What can I do with Rippling AI?",           delay: 0.5, x: '-12%' },
+  { text: "Compare my last few paychecks",             delay: 0.9, x: '10%'  },
+  { text: "Who hasn't taken PTO this year?",           delay: 1.3, x: '-8%'  },
+  { text: "What will it cost me to visit the doctor?", delay: 1.7, x: '12%'  },
+  { text: "Show me my vacation on a graph",            delay: 2.1, x: '-14%' },
+  { text: "What can I do with Rippling AI?",           delay: 2.5, x: '8%'   },
+  { text: "Compare my last few paychecks",             delay: 2.9, x: '-10%' },
 ];
 
 const headlineWords = ['Welcome', 'to', 'Rippling', 'AI'];
@@ -209,13 +209,14 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
             }}
           />
 
-          {/* Floating prompt bubbles — fade out in chat mode */}
+          {/* Floating prompt bubbles — behind main content, fade out in chat mode */}
           <motion.div
             animate={{ opacity: selectedPrompt ? 0 : 1 }}
             transition={{ duration: 0.6 }}
             style={{
               position: 'absolute',
               inset: 0,
+              zIndex: 0,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
@@ -229,8 +230,8 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                 initial={{ opacity: 0, y: paused ? 0 : 60 }}
                 animate={
                   paused
-                    ? { opacity: 0.3, y: 0 }
-                    : { opacity: [0, 0.3, 0.3, 0], y: [60, 0, -60, -120] }
+                    ? { opacity: 0.25, y: 0 }
+                    : { opacity: [0, 0.25, 0.25, 0], y: [60, 0, -60, -120] }
                 }
                 transition={
                   paused
@@ -246,7 +247,7 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                 }
                 style={{
                   position: 'absolute',
-                  top: `${38 + i * 7}%`,
+                  top: `${52 + i * 5}%`,
                   left: `calc(50% + ${bubble.x})`,
                   transform: 'translateX(-50%)',
                   padding: '10px 18px',
@@ -612,7 +613,7 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                               whileTap={buttonTap}
                               onClick={() => {
                                 setExiting(true);
-                                setTimeout(() => onExitToShell ? onExitToShell([]) : onComplete(), 700);
+                                setTimeout(() => onGetStarted ? onGetStarted([]) : onComplete(), 700);
                               }}
                               style={{
                                 padding: '10px 28px',

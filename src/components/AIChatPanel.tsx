@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { colors, shadows, radii } from '../lib/tokens';
 import { staggerContainer, staggerItem, springs, ease } from '../lib/animations';
+import { PromptCardStack } from './ftux/WelcomeModal';
+import type { PromptCard } from './ftux/WelcomeModal';
 
 interface AIChatPanelProps {
   showSuggestions?: boolean;
@@ -14,6 +16,8 @@ interface AIChatPanelProps {
   inputSuggestions?: string[];
   /** Forces demo idle state — waiting for an external card selection (e.g. splash follow-up) */
   demoIdle?: boolean;
+  /** Framer-style stacked prompt cards rendered above the input bar */
+  ftuxCards?: PromptCard[];
 }
 
 // ─── Response data ────────────────────────────────────────────────────────────
@@ -92,13 +96,16 @@ const suggestedPrompts = [
 
 type ConvPhase = 'idle' | 'thinking' | 'streaming' | 'done';
 
-export function AIChatPanel({ showSuggestions = true, highlightInput = false, ftuxPrompts, autoFirePrompt, inputSuggestions, demoIdle }: AIChatPanelProps) {
-  const demoMode = !!ftuxPrompts || !!autoFirePrompt || !!inputSuggestions || !!demoIdle;
+export function AIChatPanel({ showSuggestions = true, highlightInput = false, ftuxPrompts, autoFirePrompt, inputSuggestions, demoIdle, ftuxCards }: AIChatPanelProps) {
+  const demoMode = !!ftuxPrompts || !!autoFirePrompt || !!inputSuggestions || !!demoIdle || !!ftuxCards;
 
   // Pill state — track individually so clicking one prompt keeps the others visible
   const [dismissedPills, setDismissedPills] = useState<Set<number>>(new Set());
   const activePillCount = (ftuxPrompts?.length ?? 0) - dismissedPills.size;
   const showPills = !!ftuxPrompts && activePillCount > 0 && !autoFirePrompt && !inputSuggestions;
+
+  // Card stack dismiss state
+  const [cardsDismissed, setCardsDismissed] = useState(false);
 
   // Copilot suggestion chips (post-splash): individually dismissable + global dismiss
   const [dismissedSuggestions, setDismissedSuggestions] = useState<Set<string>>(new Set());
@@ -189,7 +196,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
       </div>
 
       {/* Conversation area */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
         {/* ── Demo mode ── */}
         <AnimatePresence mode="wait">
@@ -371,6 +378,59 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                 dismissedIndices={dismissedPills}
                 onSelect={(prompt, i) => handlePillClick(prompt, i)}
                 onDismiss={(i) => setDismissedPills((prev) => new Set([...prev, i]))}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Framer-style card stack (splash variant) ──────────────────────── */}
+      <AnimatePresence>
+        {!!ftuxCards && ftuxCards.length > 0 && !cardsDismissed && (
+          <motion.div
+            key="ftux-card-stack"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8, transition: { duration: 0.18, ease: ease.in } }}
+            transition={{ duration: 0.3, ease: ease.out }}
+            style={{ flexShrink: 0 }}
+          >
+            <div style={{
+              padding: '14px 14px 10px',
+              borderTop: `1px solid ${colors.gray150}`,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <span style={{
+                  fontSize: 10.5, fontWeight: 700, color: colors.gray400,
+                  textTransform: 'uppercase', letterSpacing: '0.07em',
+                }}>
+                  Try asking
+                </span>
+                <motion.button
+                  whileHover={{ color: colors.gray700, background: colors.gray100 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setCardsDismissed(true)}
+                  style={{
+                    width: 20, height: 20,
+                    borderRadius: 5,
+                    background: 'none',
+                    border: 'none',
+                    color: colors.gray400,
+                    fontSize: 11,
+                    cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: 0,
+                  }}
+                >
+                  ✕
+                </motion.button>
+              </div>
+              <PromptCardStack
+                prompts={ftuxCards}
+                onSelect={(text) => {
+                  clearTimers();
+                  startConversation(text, 1400);
+                }}
               />
             </div>
           </motion.div>

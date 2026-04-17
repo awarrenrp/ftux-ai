@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { colors, shadows, radii } from '../../lib/tokens';
 import { backdropVariants, scaleIn, buttonTap, buttonHover, ease } from '../../lib/animations';
 import { AIChatPanel } from '../AIChatPanel';
+import type { PromptCard } from './WelcomeModal';
 
 const SPLASH_PROMPTS = [
   "What can I do with Rippling AI?",
@@ -253,6 +254,7 @@ export function SpotlightTour({ onComplete }: SpotlightTourProps) {
 interface RipplingShellProps {
   chatDemoActive?: boolean;
   ftuxPrompts?: string[];
+  ftuxCards?: PromptCard[];
   autoFirePrompt?: string;
   inputSuggestions?: string[];
   buildReveal?: boolean;
@@ -262,7 +264,7 @@ interface RipplingShellProps {
 const NAV_ITEMS = ['Home', 'People', 'Payroll', 'Benefits', 'IT', 'Finance'];
 const TABLE_ROWS = Array.from({ length: 6 });
 
-export function RipplingShell({ chatDemoActive = false, ftuxPrompts, autoFirePrompt, inputSuggestions, buildReveal, demoIdle }: RipplingShellProps) {
+export function RipplingShell({ chatDemoActive = false, ftuxPrompts, ftuxCards, autoFirePrompt, inputSuggestions, buildReveal, demoIdle }: RipplingShellProps) {
   // One-way gate: starts hidden when buildReveal mode is active, becomes true on reveal
   const [revealed, setRevealed] = useState(buildReveal === undefined ? true : false);
 
@@ -378,14 +380,16 @@ export function RipplingShell({ chatDemoActive = false, ftuxPrompts, autoFirePro
         }}
       >
         {autoFirePrompt
-          ? <AIChatPanel showSuggestions={false} autoFirePrompt={autoFirePrompt} />
+          ? <AIChatPanel showSuggestions={false} autoFirePrompt={autoFirePrompt} ftuxCards={ftuxCards} />
           : inputSuggestions
             ? <AIChatPanel showSuggestions={false} inputSuggestions={inputSuggestions} />
-            : demoIdle
-              ? <AIChatPanel showSuggestions={false} demoIdle />
-              : chatDemoActive
-                ? <AIChatPanel showSuggestions={false} ftuxPrompts={ftuxPrompts ?? SPLASH_PROMPTS} />
-                : <AIChatPanel showSuggestions={true} />
+            : ftuxCards && ftuxCards.length > 0
+              ? <AIChatPanel showSuggestions={false} ftuxCards={ftuxCards} />
+              : demoIdle
+                ? <AIChatPanel showSuggestions={false} demoIdle />
+                : chatDemoActive
+                  ? <AIChatPanel showSuggestions={false} ftuxPrompts={ftuxPrompts ?? SPLASH_PROMPTS} />
+                  : <AIChatPanel showSuggestions={true} />
         }
       </motion.div>
     </div>

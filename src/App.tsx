@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { colors, shadows, radii } from './lib/tokens';
 import { springs, buttonTap, fadeIn } from './lib/animations';
 import { FullscreenSplash } from './components/ftux/FullscreenSplash';
 import { ModalWalkthrough } from './components/ftux/ModalWalkthrough';
 import { SpotlightTour, RipplingShell } from './components/ftux/SpotlightTour';
-import { WelcomeModal, PromptCardStack } from './components/ftux/WelcomeModal';
+import { WelcomeModal } from './components/ftux/WelcomeModal';
 import type { PromptCard } from './components/ftux/WelcomeModal';
 
 type Variant = 'splash' | 'modal' | 'spotlight' | 'welcome';
@@ -30,7 +30,6 @@ export default function App() {
   const [splashDone, setSplashDone] = useState(false);
   const [splashExited, setSplashExited] = useState(false);
   const [splashRemainingPrompts, setSplashRemainingPrompts] = useState<string[]>([]);
-  const [splashFirePrompt, setSplashFirePrompt] = useState<string | null>(null);
   // Welcome variant: after the user clicks "Use this", keep the shell visible
   // and auto-fire the selected prompt in the chat panel.
   const [welcomePrompt, setWelcomePrompt] = useState<string | null>(null);
@@ -41,7 +40,6 @@ export default function App() {
     setSplashDone(false);
     setSplashExited(false);
     setSplashRemainingPrompts([]);
-    setSplashFirePrompt(null);
     setWelcomePrompt(null);
   }
 
@@ -50,13 +48,11 @@ export default function App() {
     setSplashDone(false);
     setSplashExited(false);
     setSplashRemainingPrompts([]);
-    setSplashFirePrompt(null);
     setWelcomePrompt(null);
   }
 
-  // "Exit demo" keeps the shell open but drops FTUX mode, surfacing prompts in the input
+  // "Exit demo" dismisses the demo button but keeps the card stack visible
   function handleExitDemo() {
-    setSplashDone(false);
     setSplashExited(true);
   }
 
@@ -245,13 +241,8 @@ export default function App() {
               >
                 <RipplingShell
                   chatDemoActive={active === 'splash' && splashDone && !splashExited}
-                  demoIdle={active === 'splash' && splashDone && !splashExited && !splashFirePrompt}
-                  autoFirePrompt={
-                    active === 'welcome' ? (welcomePrompt ?? undefined)
-                      : active === 'splash' && splashDone && splashFirePrompt ? splashFirePrompt
-                      : undefined
-                  }
-                  inputSuggestions={active === 'splash' && splashExited ? splashRemainingPrompts : undefined}
+                  ftuxCards={active === 'splash' && splashDone ? SPLASH_PROMPT_CARDS : undefined}
+                  autoFirePrompt={active === 'welcome' ? (welcomePrompt ?? undefined) : undefined}
                   buildReveal={active === 'splash' ? splashDone : undefined}
                 />
               </motion.div>
@@ -264,15 +255,6 @@ export default function App() {
                     onComplete={reset}
                     onGetStarted={handleSplashGetStarted}
                     onExitToShell={handleSplashExitToShell}
-                  />
-                )}
-
-                {/* Splash follow-up cards — float above the input bar after splash exits */}
-                {active === 'splash' && splashDone && !splashExited && (
-                  <SplashFollowUpCards
-                    key={`splash-cards-${key}`}
-                    onSelect={(prompt) => setSplashFirePrompt(prompt)}
-                    onDismiss={handleExitDemo}
                   />
                 )}
 
@@ -313,57 +295,6 @@ const SPLASH_PROMPT_CARDS: PromptCard[] = [
     caption: 'Queries your whole team and lists everyone with zero days used',
   },
 ];
-
-function SplashFollowUpCards({
-  onSelect,
-  onDismiss,
-}: {
-  onSelect: (prompt: string) => void;
-  onDismiss: () => void;
-}) {
-  const [inputRect, setInputRect] = useState<DOMRect | null>(null);
-
-  useEffect(() => {
-    function measure() {
-      const el = document.getElementById('prompt-input');
-      if (el) setInputRect(el.getBoundingClientRect());
-    }
-    const t = setTimeout(measure, 80);
-    window.addEventListener('resize', measure);
-    return () => { clearTimeout(t); window.removeEventListener('resize', measure); };
-  }, []);
-
-  const style: React.CSSProperties = inputRect
-    ? { position: 'fixed', bottom: window.innerHeight - inputRect.top + 12, left: inputRect.left, width: inputRect.width, zIndex: 202 }
-    : { position: 'fixed', bottom: 120, right: 24, width: 340, zIndex: 202 };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 8, scale: 0.96, transition: { duration: 0.22 } }}
-      transition={springs.gentle}
-      style={{ ...style, padding: '0 2px' }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>
-        <motion.button
-          whileHover={{ background: colors.gray200 }}
-          onClick={onDismiss}
-          style={{
-            width: 22, height: 22, borderRadius: '50%',
-            background: 'rgba(255,255,255,0.92)',
-            backdropFilter: 'blur(6px)',
-            border: `1px solid ${colors.gray200}`,
-            cursor: 'pointer', fontSize: 9, color: colors.gray500,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: shadows.sm,
-          }}
-        >✕</motion.button>
-      </div>
-      <PromptCardStack prompts={SPLASH_PROMPT_CARDS} onSelect={onSelect} />
-    </motion.div>
-  );
-}
 
 // ─── Landing / home ───────────────────────────────────────────────────────────
 

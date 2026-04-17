@@ -371,6 +371,11 @@ export function PromptCardStack({
     onSelect(text);
   }
 
+  function cyclePrev(e: React.MouseEvent) {
+    e.stopPropagation();
+    setFrontIdx((prev) => (prev - 1 + n) % n);
+  }
+
   function cycleNext(e: React.MouseEvent) {
     e.stopPropagation();
     setFrontIdx((prev) => (prev + 1) % n);
@@ -434,7 +439,33 @@ export function PromptCardStack({
                   <p style={{ fontSize: 12, color: colors.gray400, lineHeight: 1.45 }}>
                     {prompt.caption}
                   </p>
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', paddingTop: 6 }}>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', paddingTop: 6 }}>
+                    <div style={{ display: 'flex', gap: 4 }}>
+                      {[
+                        { label: '←', action: cyclePrev },
+                        { label: '→', action: cycleNext },
+                      ].map(({ label, action }) => (
+                        <motion.button
+                          key={label}
+                          whileHover={{ background: 'rgba(0,0,0,0.06)', color: colors.gray700 }}
+                          whileTap={buttonTap}
+                          onClick={(e) => { e.stopPropagation(); action(e); }}
+                          style={{
+                            width: 24, height: 24,
+                            borderRadius: 6,
+                            background: colors.gray100,
+                            border: `1px solid ${colors.gray200}`,
+                            color: colors.gray500,
+                            fontSize: 12,
+                            cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            padding: 0,
+                          }}
+                        >
+                          {label}
+                        </motion.button>
+                      ))}
+                    </div>
                     <span style={{ fontSize: 11.5, fontWeight: 600, color: colors.primary }}>
                       Try this →
                     </span>
@@ -446,37 +477,6 @@ export function PromptCardStack({
         })}
       </div>
 
-      {/* Dots + cycle button */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
-          {prompts.map((_, i) => (
-            <motion.div
-              key={i}
-              animate={{
-                width: i === frontIdx ? 16 : 5,
-                background: i === frontIdx ? colors.primary : colors.gray200,
-              }}
-              transition={{ duration: 0.22 }}
-              style={{ height: 5, borderRadius: 999 }}
-            />
-          ))}
-        </div>
-
-        <motion.button
-          whileHover={{ color: colors.gray700 }}
-          whileTap={buttonTap}
-          onClick={cycleNext}
-          style={{
-            background: 'none', border: 'none',
-            fontSize: 12, color: colors.gray400,
-            cursor: 'pointer', fontWeight: 500,
-            display: 'flex', alignItems: 'center', gap: 3,
-            padding: 0,
-          }}
-        >
-          See another →
-        </motion.button>
-      </div>
     </div>
   );
 }
