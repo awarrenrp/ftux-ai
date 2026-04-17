@@ -61,6 +61,13 @@ export default function App() {
     setSplashDone(true);
   }
 
+  // Close button on splash → skip demo, land directly on copilot with remaining prompts
+  function handleSplashExitToShell(remainingPrompts: string[]) {
+    setSplashRemainingPrompts(remainingPrompts);
+    setSplashDone(true);
+    setSplashExited(true);
+  }
+
   function handleWelcomePromptSelected(prompt: string) {
     setWelcomePrompt(prompt);
   }
@@ -69,7 +76,7 @@ export default function App() {
     <div style={{ minHeight: '100vh', background: colors.gray50 }}>
       {/* Fixed close button — only during the splash demo state */}
       <AnimatePresence>
-        {active === 'splash' && splashDone && (
+        {active === 'splash' && splashDone && !splashExited && (
           <motion.button
             key="splash-close"
             initial={{ opacity: 0, y: -8 }}
@@ -239,6 +246,7 @@ export default function App() {
                     key={`splash-${key}`}
                     onComplete={reset}
                     onGetStarted={handleSplashGetStarted}
+                    onExitToShell={handleSplashExitToShell}
                   />
                 )}
 

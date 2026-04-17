@@ -13,6 +13,7 @@ import {
 interface FullscreenSplashProps {
   onComplete: () => void;
   onGetStarted?: (remainingPrompts: string[]) => void;
+  onExitToShell?: (remainingPrompts: string[]) => void;
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -70,7 +71,7 @@ const T = {
 
 type ChatPhase = 'thinking' | 'streaming' | 'done';
 
-export function FullscreenSplash({ onComplete, onGetStarted }: FullscreenSplashProps) {
+export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: FullscreenSplashProps) {
   const [exiting, setExiting] = useState(false);
 
   // Chat state
@@ -161,7 +162,11 @@ export function FullscreenSplash({ onComplete, onGetStarted }: FullscreenSplashP
             transition={{ delay: 0.6, duration: 0.35 }}
             whileHover={{ scale: 1.12, background: 'rgba(255,255,255,0.2)' }}
             whileTap={{ scale: 0.9 }}
-            onClick={() => { setExiting(true); setTimeout(onComplete, 550); }}
+            onClick={() => {
+              setExiting(true);
+              const remaining = remainingPrompts.map((p) => p.full);
+              setTimeout(() => onExitToShell ? onExitToShell(remaining) : onComplete(), 550);
+            }}
             style={{
               position: 'fixed',
               top: 16,
