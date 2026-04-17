@@ -418,7 +418,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
       </AnimatePresence>
 
       {/* Input area */}
-      <div style={{ padding: '22px 12px 6px', borderTop: `1px solid ${colors.gray150}`, flexShrink: 0 }}>
+      <div style={{ padding: '22px 12px 6px', flexShrink: 0 }}>
         {/* Trial notification — floats on top of the input box */}
         <div style={{ position: 'relative' }}>
           <div style={{
