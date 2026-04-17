@@ -149,7 +149,12 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'linear-gradient(160deg, #1a0014 0%, #0f000b 40%, #0d0d14 100%)',
+            background: [
+              'radial-gradient(ellipse 60% 50% at 15% 85%, rgba(39,104,189,0.13) 0%, transparent 100%)',
+              'radial-gradient(ellipse 50% 45% at 85% 15%, rgba(45,138,112,0.11) 0%, transparent 100%)',
+              'radial-gradient(ellipse 55% 40% at 70% 90%, rgba(235,192,241,0.07) 0%, transparent 100%)',
+              'linear-gradient(160deg, #1a0014 0%, #0f000b 40%, #0d0d14 100%)',
+            ].join(', '),
             overflow: 'hidden',
           }}
         >
