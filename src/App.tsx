@@ -29,7 +29,6 @@ export default function App() {
   const [key, setKey] = useState(0);
   const [splashDone, setSplashDone] = useState(false);
   const [splashExited, setSplashExited] = useState(false);
-  const [splashRemainingPrompts, setSplashRemainingPrompts] = useState<string[]>([]);
   // Welcome variant: after the user clicks "Use this", keep the shell visible
   // and auto-fire the selected prompt in the chat panel.
   const [welcomePrompt, setWelcomePrompt] = useState<string | null>(null);
@@ -39,7 +38,6 @@ export default function App() {
     setKey((k) => k + 1);
     setSplashDone(false);
     setSplashExited(false);
-    setSplashRemainingPrompts([]);
     setWelcomePrompt(null);
   }
 
@@ -47,7 +45,6 @@ export default function App() {
     setActive(null);
     setSplashDone(false);
     setSplashExited(false);
-    setSplashRemainingPrompts([]);
     setWelcomePrompt(null);
   }
 
@@ -56,14 +53,12 @@ export default function App() {
     setSplashExited(true);
   }
 
-  function handleSplashGetStarted(remainingPrompts: string[]) {
-    setSplashRemainingPrompts(remainingPrompts);
+  function handleSplashGetStarted(_remainingPrompts: string[]) {
     setSplashDone(true);
   }
 
-  // Close button on splash → skip demo, land directly on copilot with remaining prompts
-  function handleSplashExitToShell(remainingPrompts: string[]) {
-    setSplashRemainingPrompts(remainingPrompts);
+  // Close button on splash → skip to copilot (card stack still shows)
+  function handleSplashExitToShell(_remainingPrompts: string[]) {
     setSplashDone(true);
     setSplashExited(true);
   }
