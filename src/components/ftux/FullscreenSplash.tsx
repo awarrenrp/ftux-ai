@@ -154,30 +154,31 @@ export function FullscreenSplash({ onComplete, onGetStarted }: FullscreenSplashP
             overflow: 'hidden',
           }}
         >
-          {/* Close button */}
+          {/* Close button — fixed so it sits above the playground top bar */}
           <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.4 }}
-            whileHover={{ scale: 1.1, background: 'rgba(255,255,255,0.15)' }}
+            transition={{ delay: 0.6, duration: 0.35 }}
+            whileHover={{ scale: 1.12, background: 'rgba(255,255,255,0.2)' }}
             whileTap={{ scale: 0.9 }}
             onClick={() => { setExiting(true); setTimeout(onComplete, 550); }}
             style={{
-              position: 'absolute',
-              top: 20,
+              position: 'fixed',
+              top: 16,
               right: 24,
-              zIndex: 10,
-              width: 32,
-              height: 32,
+              zIndex: 600,
+              width: 34,
+              height: 34,
               borderRadius: '50%',
-              background: 'rgba(255,255,255,0.1)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              color: 'rgba(255,255,255,0.8)',
-              fontSize: 14,
+              background: 'rgba(255,255,255,0.12)',
+              border: '1.5px solid rgba(255,255,255,0.3)',
+              color: '#ffffff',
+              fontSize: 15,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              backdropFilter: 'blur(6px)',
             }}
           >✕</motion.button>
 
