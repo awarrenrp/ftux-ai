@@ -180,10 +180,7 @@ export function WelcomeModal({ onComplete, onPromptSelected }: WelcomeModalProps
                         marginBottom: 20,
                       }}
                     >
-                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 3L20 7.5V16.5L12 21L4 16.5V7.5L12 3Z" fill="white" fillOpacity="0.9"/>
-                        <path d="M12 8L16 10.5V15.5L12 18L8 15.5V10.5L12 8Z" fill="white"/>
-                      </svg>
+                      <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ width: 32, height: 32, borderRadius: 8 }} />
                     </motion.div>
 
                     <motion.p

@@ -267,16 +267,7 @@ export function FullscreenSplash({ onComplete, onGetStarted }: FullscreenSplashP
                     style={{ marginBottom: 28, display: 'flex', justifyContent: 'center' }}
                   >
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{
-                        width: 40,
-                        height: 40,
-                        borderRadius: 10,
-                        background: colors.primary,
-                        boxShadow: shadows.primary,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        <RipplingIcon />
-                      </div>
+                      <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ width: 40, height: 40, borderRadius: 10 }} />
                       <span style={{ fontSize: 20, fontWeight: 700, color: 'rgba(255,255,255,0.95)', letterSpacing: '-0.2px' }}>
                         Rippling AI
                       </span>
@@ -416,20 +407,7 @@ export function FullscreenSplash({ onComplete, onGetStarted }: FullscreenSplashP
                     gap: 8,
                     marginBottom: 28,
                   }}>
-                    <div style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 7,
-                      background: colors.primary,
-                      boxShadow: shadows.primary,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      flexShrink: 0,
-                    }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 3L20 7.5V16.5L12 21L4 16.5V7.5L12 3Z" fill="white" fillOpacity="0.85"/>
-                        <path d="M12 8L16 10.5V15.5L12 18L8 15.5V10.5L12 8Z" fill="white"/>
-                      </svg>
-                    </div>
+                    <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ width: 28, height: 28, borderRadius: 7, flexShrink: 0 }} />
                     <span style={{ fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.9)', letterSpacing: '-0.2px' }}>
                       Rippling AI
                     </span>
@@ -667,13 +645,3 @@ function DarkResponseLine({ line, index }: { line: ResponseLine; index: number }
   );
 }
 
-// ─── Icon ─────────────────────────────────────────────────────────────────────
-
-function RipplingIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path d="M12 3L20 7.5V16.5L12 21L4 16.5V7.5L12 3Z" fill="white" fillOpacity="0.85"/>
-      <path d="M12 8L16 10.5V15.5L12 18L8 15.5V10.5L12 8Z" fill="white"/>
-    </svg>
-  );
-}

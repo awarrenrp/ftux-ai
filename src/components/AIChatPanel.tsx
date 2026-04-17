@@ -199,9 +199,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
               style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, paddingTop: 48 }}
             >
-              <div style={{ width: 40, height: 40, borderRadius: 10, background: colors.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: shadows.primary }}>
-                <RipplingMark />
-              </div>
+              <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ width: 40, height: 40, borderRadius: 10 }} />
               <p style={{ fontSize: 14, fontWeight: 600, color: colors.gray700 }}>Rippling AI</p>
               <p style={{ fontSize: 13, color: colors.gray400, textAlign: 'center', maxWidth: 200, lineHeight: 1.55 }}>
                 Select a prompt below to see what happens
@@ -589,14 +587,6 @@ const iconBtn: React.CSSProperties = {
   color: colors.gray400, fontSize: 14,
 };
 
-function RipplingMark() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path d="M12 3L20 7.5V16.5L12 21L4 16.5V7.5L12 3Z" fill="white" fillOpacity="0.85"/>
-      <path d="M12 8L16 10.5V15.5L12 18L8 15.5V10.5L12 8Z" fill="white"/>
-    </svg>
-  );
-}
 function SidebarIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

@@ -104,14 +104,16 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Top bar */}
+      {/* Bottom bar */}
       <div style={{
-        position: 'sticky',
-        top: 0,
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
         zIndex: 400,
         background: 'rgba(255,255,255,0.9)',
         backdropFilter: 'blur(12px)',
-        borderBottom: `1px solid ${colors.gray200}`,
+        borderTop: `1px solid ${colors.gray200}`,
         padding: '10px 24px',
         display: 'flex',
         alignItems: 'center',
@@ -120,22 +122,11 @@ export default function App() {
       }}>
         {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginRight: 8 }}>
-          <div style={{
-            width: 30,
-            height: 30,
-            borderRadius: 7,
-            background: colors.primary,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            boxShadow: shadows.primary,
-          }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M12 3L20 7.5V16.5L12 21L4 16.5V7.5L12 3Z" fill="white" fillOpacity="0.85"/>
-              <path d="M12 8L16 10.5V15.5L12 18L8 15.5V10.5L12 8Z" fill="white"/>
-            </svg>
-          </div>
+          <img
+            src="/rippling-ai-icon.png"
+            alt="Rippling AI"
+            style={{ width: 30, height: 30, borderRadius: 7, flexShrink: 0 }}
+          />
           <div>
             <p style={{ fontSize: 13, fontWeight: 700, color: colors.gray900, lineHeight: 1, letterSpacing: '-0.2px' }}>Rippling AI</p>
             <p style={{ fontSize: 10.5, color: colors.gray400, lineHeight: 1, marginTop: 2 }}>FTUX Playground</p>
@@ -210,7 +201,7 @@ export default function App() {
       </div>
 
       {/* Main */}
-      <div style={{ padding: '28px 32px', maxWidth: 1240, margin: '0 auto' }}>
+      <div style={{ padding: '28px 32px 90px', maxWidth: 1240, margin: '0 auto' }}>
         <AnimatePresence mode="wait">
           {!active ? (
             <motion.div key="landing" variants={fadeIn} initial="hidden" animate="visible" exit="exit">
