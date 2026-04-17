@@ -237,11 +237,11 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                     ? { duration: 0.4, ease: ease.out }
                     : {
                         delay: bubble.delay,
-                        duration: 4,
-                        times: [0, 0.25, 0.7, 1],
+                        duration: 9,
+                        times: [0, 0.2, 0.75, 1],
                         ease: ease.out,
                         repeat: Infinity,
-                        repeatDelay: promptBubbles.length * 0.3 + 1,
+                        repeatDelay: promptBubbles.length * 0.6 + 2,
                       }
                 }
                 style={{
@@ -365,7 +365,7 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 1.3, ease: ease.out }}
-                    style={{ fontSize: 17, color: 'rgba(255,255,255,0.5)', lineHeight: 1.65, marginBottom: 44 }}
+                    style={{ fontSize: 17, color: 'rgba(255,255,255,0.5)', lineHeight: 1.65, marginBottom: 32 }}
                   >
                     Ask anything about your team
                   </motion.p>
@@ -415,20 +415,16 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                     </div>
                   </motion.div>
 
-                  {/* Sample prompts row */}
+                  {/* Prompt pills */}
                   <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1, delayChildren: 1.8 } } }}
-                    style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' }}
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 1.85, ease: ease.out }}
+                    style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap', paddingBottom: 28 }}
                   >
                     {samplePrompts.map((p, i) => (
                       <motion.button
                         key={p.label}
-                        variants={{
-                          hidden: { opacity: 0, scale: 0.85 },
-                          visible: { opacity: 1, scale: 1, transition: springs.bouncy },
-                        }}
                         whileHover={{ scale: 1.04, background: 'rgba(255,255,255,0.12)' }}
                         whileTap={buttonTap}
                         onClick={() => handlePromptClick(i)}
@@ -566,7 +562,7 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                               color: 'rgba(255,255,255,0.3)',
                               textTransform: 'uppercase',
                               letterSpacing: '0.08em',
-                              marginBottom: 10,
+                              marginBottom: 12,
                               textAlign: 'center',
                             }}>
                               Ask another question
@@ -734,4 +730,3 @@ function DarkResponseLine({ line, index }: { line: ResponseLine; index: number }
     </motion.div>
   );
 }
-
