@@ -225,8 +225,8 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                 initial={{ opacity: 0, y: paused ? 0 : 60 }}
                 animate={
                   paused
-                    ? { opacity: 0.9, y: 0 }
-                    : { opacity: [0, 0.9, 0.9, 0], y: [60, 0, -60, -120] }
+                    ? { opacity: 0.6, y: 0 }
+                    : { opacity: [0, 0.6, 0.6, 0], y: [60, 0, -60, -120] }
                 }
                 transition={
                   paused
