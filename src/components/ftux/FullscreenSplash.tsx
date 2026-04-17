@@ -18,47 +18,45 @@ interface FullscreenSplashProps {
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
 const promptBubbles = [
-  { text: "How much will I pay to visit the doctor?", delay: 0.5, x: '-6%' },
-  { text: "How much did I pay in taxes last year?",   delay: 0.9, x: '5%'  },
-  { text: "Which team took the most PTO last year?",  delay: 1.3, x: '-3%' },
-  { text: "How much will I pay to visit the doctor?", delay: 1.7, x: '8%'  },
-  { text: "How much did I pay in taxes last year?",   delay: 2.1, x: '0%'  },
+  { text: "What can I do with Rippling AI?",  delay: 0.5, x: '-6%' },
+  { text: "Compare my last few paychecks",    delay: 0.9, x: '5%'  },
+  { text: "Who hasn't taken PTO this year?",  delay: 1.3, x: '-3%' },
+  { text: "What can I do with Rippling AI?",  delay: 1.7, x: '8%'  },
+  { text: "Compare my last few paychecks",    delay: 2.1, x: '0%'  },
 ];
 
 const headlineWords = ['Welcome', 'to', 'Rippling', 'AI'];
 
 const samplePrompts = [
-  { label: 'Visit the doctor?', full: 'How much will I pay to visit the doctor?' },
-  { label: 'Taxes last year?',  full: 'How much did I pay in taxes last year?' },
-  { label: 'PTO by team?',      full: 'Which team took the most PTO last year?' },
+  { label: 'What can I do?',     full: 'What can I do with Rippling AI?' },
+  { label: 'Compare paychecks', full: 'Compare my last few paychecks' },
+  { label: 'PTO this year?',    full: "Who hasn't taken PTO this year?" },
 ];
 
 type ResponseLine = { type: string; text: string };
 
 const chatResponses: Record<string, ResponseLine[]> = {
-  'How much will I pay to visit the doctor?': [
-    { type: 'heading', text: 'Doctor Visit Costs' },
-    { type: 'body',    text: 'Based on your Kaiser Permanente HMO plan, primary care visits have a $20 copay once your deductible is met.' },
-    { type: 'label',   text: 'Your 2025 coverage breakdown:' },
-    { type: 'bullet',  text: 'Primary care copay — $20' },
-    { type: 'bullet',  text: 'Specialist copay — $40' },
-    { type: 'bullet',  text: 'Deductible remaining — $850 of $1,500' },
+  'What can I do with Rippling AI?': [
+    { type: 'heading', text: 'What Rippling AI can do' },
+    { type: 'body',    text: 'Ask anything about your HR, Payroll, Benefits, and IT data — in plain English.' },
+    { type: 'bullet',  text: 'Benefits — coverage, deductibles, costs, open enrollment' },
+    { type: 'bullet',  text: 'Payroll — pay history, tax summaries, compensation trends' },
+    { type: 'bullet',  text: 'People — PTO, headcount, org changes, onboarding status' },
+    { type: 'bullet',  text: 'IT — device inventory, app access, software usage' },
+    { type: 'note',    text: 'Tip: use @ to scope to a module — e.g. @payroll or @benefits' },
   ],
-  'How much did I pay in taxes last year?': [
-    { type: 'heading', text: '2025 Tax Summary' },
-    { type: 'body',    text: 'Based on your W-2 and payroll records from last year:' },
-    { type: 'bullet',  text: 'Federal income tax — $14,320' },
-    { type: 'bullet',  text: 'California state tax — $4,108' },
-    { type: 'bullet',  text: 'Social Security + Medicare — $5,890' },
-    { type: 'bullet',  text: 'Total withheld — $24,318' },
+  'Compare my last few paychecks': [
+    { type: 'heading', text: 'Your Last 4 Paychecks' },
+    { type: 'chart',   text: 'Net pay · biweekly' },
+    { type: 'note',    text: 'Mar 16 reflects your merit raise (+12.8%) effective Mar 1.' },
   ],
-  'Which team took the most PTO last year?': [
-    { type: 'heading', text: 'PTO by Team — 2025' },
-    { type: 'body',    text: 'Engineering led all departments in PTO usage last year.' },
-    { type: 'bullet',  text: 'Engineering — 12.4 days avg' },
-    { type: 'bullet',  text: 'Sales — 10.1 days avg' },
-    { type: 'bullet',  text: 'Customer Success — 9.8 days avg' },
-    { type: 'bullet',  text: 'Company average — 10.6 days' },
+  "Who hasn't taken PTO this year?": [
+    { type: 'heading', text: '8 Employees with Zero PTO in 2025' },
+    { type: 'subhead', text: 'As of today · all departments' },
+    { type: 'bullet',  text: 'Engineering: Alex Chen, Ryan Park, Jordan Smith, Sam Lee' },
+    { type: 'bullet',  text: 'Sales: Marcus Rivera, Priya Patel' },
+    { type: 'bullet',  text: 'Operations: Jamie Torres, Casey Kim' },
+    { type: 'note',    text: 'Policy: 15 days/year · unused days expire Dec 31.' },
   ],
 };
 
@@ -580,14 +578,54 @@ function DarkThinkingDots() {
 
 // ─── Dark-themed response line ────────────────────────────────────────────────
 
+// Paycheck bars for the chart response
+const PAYCHECK_BARS = [
+  { label: 'Feb 2',  value: 4620 },
+  { label: 'Feb 16', value: 4620 },
+  { label: 'Mar 2',  value: 4620 },
+  { label: 'Mar 16', value: 5210, highlight: true },
+];
+
 function DarkResponseLine({ line, index }: { line: ResponseLine; index: number }) {
   const styleMap: Record<string, React.CSSProperties> = {
     heading: { fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginTop: index > 0 ? 4 : 0 },
     subhead:  { fontSize: 13.5, fontWeight: 600, color: 'rgba(255,255,255,0.75)' },
     body:     { fontSize: 13.5, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 },
-    label:    { fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.7)', marginTop: 6 },
-    bullet:   { fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55, paddingLeft: 4, display: 'flex', alignItems: 'flex-start', gap: 6 },
+    bullet:   { fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55, paddingLeft: 4 },
+    note:     { fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.55, fontStyle: 'italic' },
+    chart:    {},
   };
+
+  if (line.type === 'chart') {
+    const max = Math.max(...PAYCHECK_BARS.map(b => b.value));
+    return (
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: ease.out }}>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+          {line.text}
+        </p>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', height: 72 }}>
+          {PAYCHECK_BARS.map((bar) => (
+            <div key={bar.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
+              <span style={{ fontSize: 9.5, color: bar.highlight ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.45)', fontWeight: bar.highlight ? 700 : 400 }}>
+                ${(bar.value / 1000).toFixed(1)}k{bar.highlight ? ' ↑' : ''}
+              </span>
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: `${Math.round((bar.value / max) * 52)}px` }}
+                transition={{ duration: 0.5, delay: 0.1, ease: ease.out }}
+                style={{
+                  width: '100%',
+                  background: bar.highlight ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)',
+                  borderRadius: '3px 3px 0 0',
+                }}
+              />
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{bar.label}</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -596,11 +634,7 @@ function DarkResponseLine({ line, index }: { line: ResponseLine; index: number }
       transition={{ duration: 0.3, ease: ease.out }}
       style={styleMap[line.type] ?? {}}
     >
-      {line.type === 'bullet' ? (
-        <><span style={{ color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>·</span>{line.text}</>
-      ) : (
-        line.text
-      )}
+      {line.type === 'bullet' ? `· ${line.text}` : line.text}
     </motion.div>
   );
 }

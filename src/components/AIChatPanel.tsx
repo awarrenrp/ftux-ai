@@ -16,39 +16,40 @@ interface AIChatPanelProps {
 
 // ─── Response data ────────────────────────────────────────────────────────────
 
-type LineType = 'heading' | 'subhead' | 'body' | 'bullet' | 'note' | 'total';
-interface ResponseLine { type: LineType; text: string }
+type LineType = 'heading' | 'subhead' | 'body' | 'bullet' | 'note' | 'total' | 'chart';
+interface ChartBar { label: string; value: number; highlight?: boolean }
+interface ResponseLine { type: LineType; text: string; bars?: ChartBar[] }
+
+const PAYCHECK_BARS: ChartBar[] = [
+  { label: 'Feb 2',  value: 4620 },
+  { label: 'Feb 16', value: 4620 },
+  { label: 'Mar 2',  value: 4620 },
+  { label: 'Mar 16', value: 5210, highlight: true },
+];
 
 const RESPONSES: Record<string, ResponseLine[]> = {
-  "How much will I pay to visit the doctor?": [
-    { type: 'heading', text: 'Your Cost Estimate' },
-    { type: 'subhead', text: 'Blue Shield of CA · PPO Gold · Active since Jan 2024' },
-    { type: 'body',    text: "Based on your current enrollment, here's what you'd typically pay out of pocket:" },
-    { type: 'bullet',  text: 'Primary care visit: $25 copay' },
-    { type: 'bullet',  text: 'Specialist visit: $45 copay' },
-    { type: 'bullet',  text: 'Urgent care: $50 copay' },
-    { type: 'bullet',  text: 'ER visit: $250 (waived if admitted)' },
-    { type: 'note',    text: 'Deductible: $1,200 individual · $340 met so far this year.' },
+  // ── Splash variant prompts ──
+  "What can I do with Rippling AI?": [
+    { type: 'heading', text: 'What Rippling AI can do' },
+    { type: 'body',    text: 'Ask anything about your HR, Payroll, Benefits, and IT data — in plain English.' },
+    { type: 'bullet',  text: 'Benefits — coverage, deductibles, costs, open enrollment' },
+    { type: 'bullet',  text: 'Payroll — pay history, tax summaries, compensation trends' },
+    { type: 'bullet',  text: 'People — PTO, headcount, org changes, onboarding status' },
+    { type: 'bullet',  text: 'IT — device inventory, app access, software usage' },
+    { type: 'note',    text: 'Tip: use @ to scope — e.g. @payroll or @benefits' },
   ],
-  "How much did I pay in taxes last year?": [
-    { type: 'heading', text: '2024 Tax Withholdings' },
-    { type: 'subhead', text: 'From your W-2 · Jan – Dec 2024' },
-    { type: 'bullet',  text: 'Federal income tax: $14,280' },
-    { type: 'bullet',  text: 'California state tax: $5,940' },
-    { type: 'bullet',  text: 'Social Security (6.2%): $6,200' },
-    { type: 'bullet',  text: 'Medicare (1.45%): $1,450' },
-    { type: 'total',   text: 'Total withheld: $27,870' },
-    { type: 'note',    text: 'Your W-2 is available in Documents → Tax Forms.' },
+  "Compare my last few paychecks": [
+    { type: 'heading', text: 'Your Last 4 Paychecks' },
+    { type: 'chart',   text: 'Net pay · biweekly', bars: PAYCHECK_BARS },
+    { type: 'note',    text: 'Mar 16 reflects your merit raise (+12.8%) effective Mar 1.' },
   ],
-  "Which team took the most PTO last year?": [
-    { type: 'heading', text: 'PTO Usage by Team — 2024' },
-    { type: 'subhead', text: 'Company-wide · Jan 1 – Dec 31, 2024' },
-    { type: 'bullet',  text: '1.  Engineering · 18.4 days avg per employee' },
-    { type: 'bullet',  text: '2.  Sales · 16.2 days avg per employee' },
-    { type: 'bullet',  text: '3.  Marketing · 15.8 days avg per employee' },
-    { type: 'bullet',  text: '4.  Customer Success · 14.1 days avg' },
-    { type: 'bullet',  text: '5.  Operations · 12.3 days avg' },
-    { type: 'note',    text: 'Company average: 15.4 days · 8 employees used 0 days.' },
+  "Who hasn't taken PTO this year?": [
+    { type: 'heading', text: '8 Employees with Zero PTO in 2025' },
+    { type: 'subhead', text: 'As of today · all departments' },
+    { type: 'bullet',  text: 'Engineering: Alex Chen, Ryan Park, Jordan Smith, Sam Lee' },
+    { type: 'bullet',  text: 'Sales: Marcus Rivera, Priya Patel' },
+    { type: 'bullet',  text: 'Operations: Jamie Torres, Casey Kim' },
+    { type: 'note',    text: 'Policy: 15 days/year · unused days expire Dec 31.' },
   ],
   // ── Welcome variant prompts ──
   "Help me understand my benefits": [
@@ -95,10 +96,11 @@ type ConvPhase = 'idle' | 'thinking' | 'streaming' | 'done';
 export function AIChatPanel({ showSuggestions = true, highlightInput = false, ftuxPrompts, autoFirePrompt, inputSuggestions }: AIChatPanelProps) {
   const demoMode = !!ftuxPrompts || !!autoFirePrompt || !!inputSuggestions;
 
-  // Pill state
-  const [pillsDismissed, setPillsDismissed] = useState(false);
+  // Pill state — track individually so clicking one prompt keeps the others visible
+  const [dismissedPills, setDismissedPills] = useState<Set<number>>(new Set());
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-  const showPills = !!ftuxPrompts && !pillsDismissed && !autoFirePrompt && !inputSuggestions;
+  const activePillCount = (ftuxPrompts?.length ?? 0) - dismissedPills.size;
+  const showPills = !!ftuxPrompts && activePillCount > 0 && !autoFirePrompt && !inputSuggestions;
 
   // Conversation state (demo mode only)
   const [convPrompt, setConvPrompt] = useState<string | null>(null);
@@ -137,10 +139,10 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
   function handlePillClick(text: string, i: number) {
     setCopiedIndex(i);
     after(280, () => {
-      setPillsDismissed(true);
+      setDismissedPills(prev => new Set([...prev, i]));
       setCopiedIndex(null);
       clearTimers();
-      startConversation(text, 1500);
+      startConversation(text, 1400);
     });
   }
 
@@ -359,7 +361,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                 <motion.button
                   whileHover={{ backgroundColor: colors.gray200 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => setPillsDismissed(true)}
+                  onClick={() => setDismissedPills(new Set(ftuxPrompts?.map((_, i) => i) ?? []))}
                   style={{
                     width: 20, height: 20, borderRadius: '50%', background: colors.gray200,
                     border: 'none', cursor: 'pointer', display: 'flex',
@@ -375,6 +377,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                 style={{ display: 'flex', flexDirection: 'column', gap: 5 }}
               >
                 {(ftuxPrompts ?? []).map((prompt, i) => {
+                  if (dismissedPills.has(i)) return null;
                   const isCopied = copiedIndex === i;
                   return (
                     <motion.button
@@ -513,7 +516,40 @@ function StreamedLine({ line }: { line: ResponseLine }) {
     bullet:   { fontSize: 13,   color: colors.gray600, lineHeight: 1.55, paddingLeft: 4 },
     note:     { fontSize: 12,   color: colors.gray400, lineHeight: 1.55, fontStyle: 'italic' },
     total:    { fontSize: 13.5, fontWeight: 700, color: colors.gray900, paddingTop: 4 },
+    chart:    {},
   };
+
+  if (line.type === 'chart') {
+    const bars = line.bars ?? [];
+    const max = Math.max(...bars.map(b => b.value));
+    return (
+      <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28, ease: ease.out }}>
+        <p style={{ fontSize: 10.5, color: colors.gray400, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>
+          {line.text}
+        </p>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', height: 80, marginBottom: 2 }}>
+          {bars.map((bar) => (
+            <div key={bar.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
+              <span style={{ fontSize: 9.5, fontWeight: bar.highlight ? 700 : 500, color: bar.highlight ? colors.primary : colors.gray500 }}>
+                ${(bar.value / 1000).toFixed(1)}k{bar.highlight ? ' ↑' : ''}
+              </span>
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: `${Math.round((bar.value / max) * 52)}px` }}
+                transition={{ duration: 0.5, delay: 0.08, ease: ease.out }}
+                style={{
+                  width: '100%',
+                  background: bar.highlight ? colors.primary : colors.gray200,
+                  borderRadius: '3px 3px 0 0',
+                }}
+              />
+              <span style={{ fontSize: 9, color: colors.gray400 }}>{bar.label}</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div

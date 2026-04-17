@@ -5,9 +5,9 @@ import { backdropVariants, scaleIn, buttonTap, buttonHover } from '../../lib/ani
 import { AIChatPanel } from '../AIChatPanel';
 
 const SPLASH_PROMPTS = [
-  "How much will I pay to visit the doctor?",
-  "How much did I pay in taxes last year?",
-  "Which team took the most PTO last year?",
+  "What can I do with Rippling AI?",
+  "Compare my last few paychecks",
+  "Who hasn't taken PTO this year?",
 ];
 
 interface SpotlightTourProps {
