@@ -319,8 +319,8 @@ function LandingState({ onLaunch }: { onLaunch: (v: Variant) => void }) {
     },
   };
 
-  const activeVariants  = variants.filter((v) => v.id === 'splash' || v.id === 'welcome');
-  const rejectedVariants = variants.filter((v) => v.id === 'modal' || v.id === 'spotlight');
+  const activeVariants  = variants.filter((v) => v.id === 'splash');
+  const rejectedVariants = variants.filter((v) => v.id === 'modal' || v.id === 'spotlight' || v.id === 'welcome');
 
   return (
     <div style={{ maxWidth: 820, margin: '0 auto' }}>
