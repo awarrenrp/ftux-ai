@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { colors, shadows, radii } from '../../lib/tokens';
 import { backdropVariants, scaleIn, springs, buttonTap, ease, staggerContainer, staggerItem } from '../../lib/animations';
 // staggerContainer + staggerItem used in welcome modal feature list
@@ -19,6 +19,10 @@ interface PromptCard {
   id: string;
   segments: Segment[];
   caption: string;
+  /** Optional override for the text sent to onSelect (defaults to joined segments) */
+  prompt?: string;
+  /** Optional visual illustration rendered at the top of the card */
+  illustration?: ReactNode;
 }
 
 const prompts: PromptCard[] = [
@@ -344,7 +348,7 @@ export type { Segment, PromptCard };
 
 // ─── Card stack ───────────────────────────────────────────────────────────────
 
-export const CARD_H = 122;
+export const CARD_H = 144;
 
 // Visual config for each stack slot (front → back)
 const SLOT_CFG = [
@@ -367,7 +371,8 @@ export function PromptCardStack({
   const slotOrder = Array.from({ length: n }, (_, slot) => (frontIdx + slot) % n);
 
   function handleFrontClick() {
-    const text = prompts[slotOrder[0]].segments.map((s) => s.text).join('');
+    const card = prompts[slotOrder[0]];
+    const text = card.prompt ?? card.segments.map((s) => s.text).join('');
     onSelect(text);
   }
 
@@ -423,23 +428,42 @@ export function PromptCardStack({
             >
               {isFront && (
                 <>
-                  <p style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: colors.gray900,
-                    lineHeight: 1.4,
-                    letterSpacing: '-0.1px',
-                  }}>
-                    {prompt.segments.map((seg, i) =>
-                      seg.type === 'command'
-                        ? <CommandChip key={i} text={seg.text} />
-                        : <span key={i}>{seg.text}</span>
-                    )}
-                  </p>
-                  <p style={{ fontSize: 12, color: colors.gray400, lineHeight: 1.45 }}>
-                    {prompt.caption}
-                  </p>
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', paddingTop: 6 }}>
+                  {prompt.illustration ? (
+                    /* ── Illustrated card layout ── */
+                    <>
+                      <p style={{ fontSize: 10.5, fontWeight: 600, color: colors.gray600, lineHeight: 1, flexShrink: 0 }}>
+                        {prompt.segments.map((seg, i) =>
+                          seg.type === 'command'
+                            ? <CommandChip key={i} text={seg.text} />
+                            : <span key={i}>{seg.text}</span>
+                        )}
+                      </p>
+                      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'stretch', minHeight: 0 }}>
+                        {prompt.illustration}
+                      </div>
+                    </>
+                  ) : (
+                    /* ── Text card layout ── */
+                    <>
+                      <p style={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: colors.gray900,
+                        lineHeight: 1.4,
+                        letterSpacing: '-0.1px',
+                      }}>
+                        {prompt.segments.map((seg, i) =>
+                          seg.type === 'command'
+                            ? <CommandChip key={i} text={seg.text} />
+                            : <span key={i}>{seg.text}</span>
+                        )}
+                      </p>
+                      <p style={{ fontSize: 12, color: colors.gray400, lineHeight: 1.45 }}>
+                        {prompt.caption}
+                      </p>
+                    </>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', paddingTop: prompt.illustration ? 2 : 6 }}>
                     <div style={{ display: 'flex', gap: 4 }}>
                       {[
                         { label: '←', action: cyclePrev },

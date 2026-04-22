@@ -275,19 +275,25 @@ export default function App() {
 
 const SPLASH_PROMPT_CARDS: PromptCard[] = [
   {
-    id: 'capabilities',
+    id: 'questions',
     segments: [{ text: 'What can I do with Rippling AI?', type: 'text' }],
-    caption: 'Explore everything the copilot can do across HR, payroll, benefits, and IT',
-  },
-  {
-    id: 'paychecks',
-    segments: [{ text: 'Compare my last few paychecks', type: 'text' }],
-    caption: 'Pulls your actual payroll records and charts the differences side-by-side',
+    caption: 'Discover everything Rippling AI can help you with',
+    prompt: 'What can I do with Rippling AI?',
   },
   {
     id: 'pto',
     segments: [{ text: "Who hasn't taken PTO this year?", type: 'text' }],
-    caption: 'Queries your whole team and lists everyone with zero days used',
+    caption: 'Query your whole team in seconds',
+    prompt: "Who hasn't taken PTO this year?",
+  },
+  {
+    id: 'payroll',
+    segments: [
+      { text: '@payroll', type: 'command' },
+      { text: ' What drove the cost increase last month?', type: 'text' },
+    ],
+    caption: 'Reference any data source with @',
+    prompt: '@payroll What drove the engineering cost increase last month?',
   },
 ];
 

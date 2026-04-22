@@ -31,19 +31,17 @@ const promptBubbles = [
 const headlineWords = ['Welcome', 'to', 'Rippling', 'AI'];
 
 const samplePrompts = [
-  { label: 'What can I do?',     full: 'What can I do with Rippling AI?' },
-  { label: 'Compare paychecks', full: 'Compare my last few paychecks' },
-  { label: 'PTO this year?',    full: "Who hasn't taken PTO this year?" },
+  { label: 'What can I do?', full: 'What can I do with Rippling AI?' },
 ];
 
 type ResponseLine = { type: string; text: string };
 
 const chatResponses: Record<string, ResponseLine[]> = {
   'What can I do with Rippling AI?': [
-    { type: 'heading', text: 'Here\'s what Rippling AI can do' },
-    { type: 'bullet',  text: 'Answer questions about your HR, payroll, benefits, and IT data — in plain English' },
-    { type: 'bullet',  text: 'Create charts and visualizations to help you tell your story' },
-    { type: 'bullet',  text: 'Use the @ command to reference specific people, requisitions, or other objects' },
+    { type: 'heading',       text: "Here's what Rippling AI can do" },
+    { type: 'cap-reports',   text: '' },
+    { type: 'cap-questions', text: '' },
+    { type: 'cap-actions',   text: '' },
   ],
   'Compare my last few paychecks': [
     { type: 'heading', text: 'Your Last 4 Paychecks' },
@@ -63,7 +61,7 @@ const chatResponses: Record<string, ResponseLine[]> = {
 // ─── Timing (ms) ──────────────────────────────────────────────────────────────
 const T = {
   thinkingMs: 1400,
-  lineDelay:  220,
+  lineDelay:  550,
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -79,6 +77,8 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
   const [usedIndices, setUsedIndices] = useState<number[]>([]);
   const [chatPhase, setChatPhase] = useState<ChatPhase | null>(null);
   const [visibleLines, setVisibleLines] = useState(0);
+  // cap-actions must wait for cap-questions to finish its animation before appearing
+  const [capActionsReady, setCapActionsReady] = useState(false);
 
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -120,6 +120,7 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
   function handlePromptClick(index: number) {
     setChatPhase('thinking');
     setVisibleLines(0);
+    setCapActionsReady(false);
     setSelectedPrompt(samplePrompts[index].full);
     setUsedIndices((prev) => prev.includes(index) ? prev : [...prev, index]);
   }
@@ -307,7 +308,7 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
           </motion.button>
 
           {/* ── Main content: intro ↔ chat ─────────────────────────────────── */}
-          <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 620, padding: '0 32px' }}>
+          <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 620, padding: '32px 32px', overflowY: 'auto', maxHeight: '100vh' }}>
             <AnimatePresence mode="wait">
               {!selectedPrompt ? (
                 /* ── Intro view ─────────────────────────────────────────────── */
@@ -473,10 +474,8 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                   <div style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 14,
+                    gap: 20,
                     marginBottom: 24,
-                    maxHeight: 320,
-                    overflowY: 'auto',
                   }}>
                     {/* User message bubble */}
                     <motion.div
@@ -522,7 +521,7 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                           key="response"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
-                          style={{ display: 'flex', flexDirection: 'column', gap: 5 }}
+                          style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
                         >
                           {/* Thinking completed label */}
                           <motion.div
@@ -538,9 +537,17 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                             <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)' }}>▾</span>
                           </motion.div>
 
-                          {responseLines.slice(0, visibleLines).map((line, i) => (
-                            <DarkResponseLine key={i} line={line} index={i} />
-                          ))}
+                          {responseLines.slice(0, visibleLines).map((line, i) => {
+                            if (line.type === 'cap-actions' && !capActionsReady) return null;
+                            return (
+                              <DarkResponseLine
+                                key={i}
+                                line={line}
+                                index={i}
+                                onQuestionsComplete={() => setCapActionsReady(true)}
+                              />
+                            );
+                          })}
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -651,6 +658,7 @@ function DarkThinkingDots() {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 4,
+      width: 'fit-content',
       padding: '8px 14px',
       background: 'rgba(255,255,255,0.07)',
       border: '1px solid rgba(255,255,255,0.1)',
@@ -679,15 +687,220 @@ const PAYCHECK_BARS = [
   { label: 'Mar 16', value: 5210, highlight: true },
 ];
 
-function DarkResponseLine({ line, index }: { line: ResponseLine; index: number }) {
+// ─── Answer-questions typewriter sub-component ────────────────────────────────
+
+const QUESTION_TEXT = 'How do I download my W2?';
+const STEPS = [
+  'Go to Payroll → Documents in your Rippling dashboard',
+  'Select the tax year and click Download W-2',
+  'Your form downloads as a PDF instantly',
+];
+
+const BUBBLE_INTERVAL = 420; // ms between each answer bubble landing
+
+function CapQuestionsLine({ onDone }: { onDone?: () => void }) {
+  const [showThinking, setShowThinking] = useState(false);
+  const [bubbleCount, setBubbleCount] = useState(0);
+
+  useEffect(() => {
+    const t: ReturnType<typeof setTimeout>[] = [];
+    // pause after question bubble lands, then show thinking dots
+    t.push(setTimeout(() => setShowThinking(true), 350));
+    // first bubble arrives — thinking dots exit simultaneously
+    t.push(setTimeout(() => { setShowThinking(false); setBubbleCount(1); }, 1100));
+    // subsequent bubbles land one at a time
+    STEPS.forEach((_, i) => {
+      if (i === 0) return;
+      t.push(setTimeout(() => setBubbleCount(i + 1), 1100 + i * BUBBLE_INTERVAL));
+    });
+    // signal parent after last bubble settles
+    t.push(setTimeout(() => onDone?.(), 1100 + (STEPS.length - 1) * BUBBLE_INTERVAL + 500));
+    return () => t.forEach(clearTimeout);
+  }, []);
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: ease.out }}>
+      <p style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', marginBottom: 10 }}>
+        Answer questions
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+        {/* User message bubble */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <motion.div
+            initial={{ opacity: 0, x: 14, scale: 0.96 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            transition={{ duration: 0.28, ease: ease.out }}
+            style={{
+              width: 'fit-content',
+              maxWidth: '75%',
+              padding: '8px 13px',
+              background: 'rgba(255,255,255,0.1)',
+              border: '1px solid rgba(255,255,255,0.14)',
+              borderRadius: '14px 14px 3px 14px',
+              fontSize: 13,
+              color: 'rgba(255,255,255,0.82)',
+              lineHeight: 1.45,
+            }}
+          >
+            {QUESTION_TEXT}
+          </motion.div>
+        </div>
+
+        {/* Thinking dots */}
+        <AnimatePresence>
+          {showThinking && (
+            <motion.div
+              key="q-thinking"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
+              transition={{ duration: 0.2 }}
+            >
+              <DarkThinkingDots />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Answer steps — pop in one at a time */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+          {STEPS.map((step, i) => (
+            <AnimatePresence key={i}>
+              {bubbleCount > i && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.28, ease: [0.34, 1.4, 0.64, 1] }}
+                  style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}
+                >
+                  <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600, marginTop: 2, flexShrink: 0 }}>{i + 1}.</span>
+                  <span style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>{step}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Dark-themed response line ────────────────────────────────────────────────
+
+function DarkResponseLine({ line, index, onQuestionsComplete }: { line: ResponseLine; index: number; onQuestionsComplete?: () => void }) {
   const styleMap: Record<string, React.CSSProperties> = {
-    heading: { fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginTop: index > 0 ? 4 : 0 },
+    heading: { fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginTop: index > 0 ? 4 : 0, marginBottom: -16 },
     subhead:  { fontSize: 13.5, fontWeight: 600, color: 'rgba(255,255,255,0.75)' },
     body:     { fontSize: 13.5, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 },
     bullet:   { fontSize: 13, color: 'rgba(255,255,255,0.55)', lineHeight: 1.55, paddingLeft: 4 },
     note:     { fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.55, fontStyle: 'italic' },
     chart:    {},
   };
+
+  // ── Make reports ──────────────────────────────────────────────────────────
+  if (line.type === 'cap-reports') {
+    const BARS = [
+      { label: 'HR',   value: 42 },
+      { label: 'Fin',  value: 28 },
+      { label: 'IT',   value: 35 },
+      { label: 'Eng',  value: 67, highlight: true },
+      { label: 'Sales',value: 51 },
+    ];
+    const max = Math.max(...BARS.map(b => b.value));
+    return (
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: ease.out }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', marginBottom: 4 }}>
+          Make reports
+        </p>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+          Headcount by department
+        </p>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', height: 72 }}>
+          {BARS.map((bar) => (
+            <div key={bar.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
+              <span style={{ fontSize: 9.5, color: bar.highlight ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.45)', fontWeight: bar.highlight ? 700 : 400 }}>
+                {bar.value}{bar.highlight ? ' ↑' : ''}
+              </span>
+              <motion.div
+                initial={{ height: 0 }}
+                animate={{ height: `${Math.round((bar.value / max) * 52)}px` }}
+                transition={{ duration: 0.4, delay: 0.1, ease: ease.out }}
+                style={{
+                  width: '100%',
+                  background: bar.highlight ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)',
+                  borderRadius: '3px 3px 0 0',
+                }}
+              />
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{bar.label}</span>
+            </div>
+          ))}
+        </div>
+        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.55, fontStyle: 'italic', marginTop: 10 }}>
+          Engineering grew 12 headcount in Q1.
+        </p>
+      </motion.div>
+    );
+  }
+
+  // ── Answer questions ───────────────────────────────────────────────────────
+  if (line.type === 'cap-questions') {
+    return <CapQuestionsLine onDone={onQuestionsComplete} />;
+  }
+
+  // ── Take actions ───────────────────────────────────────────────────────────
+  if (line.type === 'cap-actions') {
+    return (
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: ease.out }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', marginBottom: 4 }}>
+          Take actions
+        </p>
+        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+          PTO Request · Rippling notified your manager and blocked your calendar
+        </p>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.35, delay: 0.1 }}
+          style={{
+            borderRadius: 10,
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            padding: '12px 14px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+          }}
+        >
+          <div style={{ display: 'flex', gap: 16 }}>
+            {[{ label: 'Start', value: 'Jun 16' }, { label: 'End', value: 'Jun 20' }, { label: 'Days', value: '5' }].map(({ label, value }) => (
+              <div key={label}>
+                <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>{label}</p>
+                <p style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.88)' }}>{value}</p>
+              </div>
+            ))}
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
+              <motion.div
+                initial={{ scale: 0, rotate: -20 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 0.4, delay: 0.3, type: 'spring', stiffness: 280, damping: 18 }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  padding: '5px 11px',
+                  borderRadius: radii.full,
+                  background: 'rgba(76,173,135,0.18)',
+                  border: '1px solid rgba(76,173,135,0.4)',
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  color: '#4CAD87',
+                }}
+              >
+                <span>✓</span> Approved
+              </motion.div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    );
+  }
 
   if (line.type === 'chart') {
     const max = Math.max(...PAYCHECK_BARS.map(b => b.value));
