@@ -79,6 +79,8 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
   const [visibleLines, setVisibleLines] = useState(0);
   // cap-actions must wait for cap-questions to finish its animation before appearing
   const [capActionsReady, setCapActionsReady] = useState(false);
+  // Real input value
+  const [inputValue, setInputValue] = useState('');
 
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -123,6 +125,24 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
     setCapActionsReady(false);
     setSelectedPrompt(samplePrompts[index].full);
     setUsedIndices((prev) => prev.includes(index) ? prev : [...prev, index]);
+  }
+
+  function firePrompt(text: string) {
+    // Case-insensitive match against known responses; fall back to capability overview
+    const key = Object.keys(chatResponses).find(
+      (k) => k.toLowerCase() === text.toLowerCase()
+    ) ?? 'What can I do with Rippling AI?';
+    setChatPhase('thinking');
+    setVisibleLines(0);
+    setCapActionsReady(false);
+    setSelectedPrompt(key);
+    setInputValue('');
+  }
+
+  function handleInputSubmit() {
+    const trimmed = inputValue.trim();
+    if (!trimmed) { handleGetStarted(); return; }
+    firePrompt(trimmed);
   }
 
   const remainingPrompts = samplePrompts.filter((_, i) => !usedIndices.includes(i));
@@ -383,31 +403,45 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                       display: 'flex',
                       alignItems: 'center',
                       background: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(255,255,255,0.14)',
+                      border: `1px solid ${inputValue ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.14)'}`,
                       borderRadius: radii.xl,
                       padding: '12px 16px',
                       gap: 10,
                       backdropFilter: 'blur(12px)',
+                      transition: 'border-color 0.15s',
                     }}>
-                      <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', flex: 1, textAlign: 'left' }}>
-                        Ask, make, or search anything…
-                      </span>
+                      <input
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleInputSubmit(); }}
+                        placeholder="Ask, make, or search anything…"
+                        style={{
+                          flex: 1,
+                          background: 'transparent',
+                          border: 'none',
+                          outline: 'none',
+                          fontSize: 14,
+                          color: 'rgba(255,255,255,0.88)',
+                          caretColor: 'rgba(255,255,255,0.7)',
+                        }}
+                      />
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={buttonTap}
-                        onClick={handleGetStarted}
+                        onClick={handleInputSubmit}
                         style={{
                           width: 36,
                           height: 36,
                           borderRadius: '50%',
-                          background: colors.primary,
+                          background: inputValue ? colors.primary : 'rgba(255,255,255,0.15)',
                           border: 'none',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          boxShadow: shadows.primary,
+                          boxShadow: inputValue ? shadows.primary : 'none',
                           flexShrink: 0,
+                          transition: 'background 0.15s, box-shadow 0.15s',
                         }}
                       >
                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
