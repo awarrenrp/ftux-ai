@@ -812,7 +812,7 @@ function DarkResponseLine({ line, index, onQuestionsComplete }: { line: Response
           Make reports
         </p>
         <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-          Headcount by department
+          Spend by department
         </p>
         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', height: 72 }}>
           {BARS.map((bar) => (
