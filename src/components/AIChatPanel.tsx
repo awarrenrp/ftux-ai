@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { colors, shadows, radii } from '../lib/tokens';
 import { staggerContainer, staggerItem, springs, ease } from '../lib/animations';
+import { PromptCardStack } from './ftux/WelcomeModal';
 import type { PromptCard } from './ftux/WelcomeModal';
 
 interface AIChatPanelProps {
@@ -136,21 +137,11 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
   const visibleSuggestions = (inputSuggestions ?? []).filter((s) => !dismissedSuggestions.has(s));
   const showSuggestionChips = !!inputSuggestions && !suggestionsHidden && visibleSuggestions.length > 0;
 
-  // Try me dropdown
-  const [tryMeOpen, setTryMeOpen] = useState(false);
+  // Card stack state
+  const [cardsDismissed, setCardsDismissed] = useState(false);
   const [triedCardIds, setTriedCardIds] = useState<Set<string>>(new Set());
   const remainingCards = (ftuxCards ?? []).filter(c => !triedCardIds.has(c.id));
-  const tryMeRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!tryMeOpen) return;
-    function handleClickOutside(e: MouseEvent) {
-      if (tryMeRef.current && !tryMeRef.current.contains(e.target as Node)) {
-        setTryMeOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [tryMeOpen]);
+  const showCardStack = !!ftuxCards && ftuxCards.length > 0 && !cardsDismissed && remainingCards.length > 0;
 
   // Conversation state (demo mode only)
   const [convPrompt, setConvPrompt] = useState<string | null>(null);
@@ -201,6 +192,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
     setVisibleLines(0);
     setDismissedPills(new Set());
     setTriedCardIds(new Set());
+    setCardsDismissed(false);
   }
 
   // Derived display values — prevent a one-frame idle flash when autoFirePrompt first lands.
@@ -257,105 +249,9 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
               >
                 <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ width: 32, height: 32, borderRadius: 8, marginBottom: 12, display: 'block' }} />
                 <p style={{ fontSize: 22, fontWeight: 500, color: colors.gray900, lineHeight: 1.2, marginBottom: 4 }}>Hi there,</p>
-                <p style={{ fontSize: 16, color: 'rgba(0,0,0,0.45)', lineHeight: 1.45 }}>What can we help you achieve today?</p>
+                <p style={{ fontSize: 16, color: 'rgba(0,0,0,0.45)', lineHeight: 1.45 }}>What do you need help with?</p>
               </motion.div>
 
-              {/* Try me button + dropdown */}
-              {(ftuxCards ?? []).length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.1, ease: ease.out }}
-                  ref={tryMeRef}
-                  style={{ position: 'relative', width: 'fit-content' }}
-                >
-                  <motion.button
-                    whileHover={{ background: colors.primaryLight, borderColor: `${colors.primary}40` }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => setTryMeOpen(o => !o)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 7,
-                      padding: '8px 14px',
-                      background: tryMeOpen ? colors.primaryLight : colors.white,
-                      border: `1.5px solid ${tryMeOpen ? `${colors.primary}40` : colors.gray200}`,
-                      borderRadius: 20,
-                      cursor: 'pointer',
-                      fontSize: 13.5,
-                      fontWeight: 600,
-                      color: colors.primary,
-                      transition: 'all 0.15s',
-                    }}
-                  >
-                    <span style={{ fontSize: 14 }}>✦</span>
-                    Try me
-                    <motion.span
-                      animate={{ rotate: tryMeOpen ? 180 : 0 }}
-                      transition={{ duration: 0.2 }}
-                      style={{ display: 'flex', alignItems: 'center', fontSize: 10, color: colors.primary, opacity: 0.7 }}
-                    >
-                      ▾
-                    </motion.span>
-                  </motion.button>
-
-                  {/* Dropdown */}
-                  <AnimatePresence>
-                    {tryMeOpen && (
-                      <motion.div
-                        key="try-me-dropdown"
-                        initial={{ opacity: 0, y: -6, scale: 0.97 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -4, scale: 0.97, transition: { duration: 0.15 } }}
-                        transition={{ duration: 0.2, ease: ease.out }}
-                        style={{
-                          position: 'absolute',
-                          bottom: 'calc(100% + 8px)',
-                          left: 0,
-                          background: colors.white,
-                          border: `1px solid ${colors.gray200}`,
-                          borderRadius: 12,
-                          boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
-                          overflow: 'hidden',
-                          minWidth: 280,
-                          zIndex: 10,
-                        }}
-                      >
-                        {remainingCards.map((card, i) => {
-                          const label = card.segments.map(s => s.text).join('');
-                          const prompt = card.prompt ?? label;
-                          return (
-                            <motion.button
-                              key={card.id}
-                              initial={{ opacity: 0, x: -6 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ duration: 0.18, delay: i * 0.05 }}
-                              whileHover={{ background: colors.primaryLight }}
-                              whileTap={{ scale: 0.99 }}
-                              onClick={() => {
-                                setTryMeOpen(false);
-                                setTriedCardIds(prev => new Set([...prev, card.id]));
-                                clearTimers();
-                                startConversation(prompt, 1400);
-                              }}
-                              style={{
-                                display: 'flex', alignItems: 'center', gap: 10,
-                                width: '100%', textAlign: 'left',
-                                padding: '11px 14px',
-                                background: 'transparent', border: 'none',
-                                borderBottom: i < remainingCards.length - 1 ? `1px solid ${colors.gray100}` : 'none',
-                                cursor: 'pointer',
-                                transition: 'background 0.12s',
-                              }}
-                            >
-                              <span style={{ fontSize: 13, color: colors.primary, flexShrink: 0 }}>↳</span>
-                              <span style={{ fontSize: 13.5, color: colors.gray900, lineHeight: 1.4, fontWeight: 450 }}>{label}</span>
-                            </motion.button>
-                          );
-                        })}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              )}
             </motion.div>
           )}
 
@@ -430,103 +326,6 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                 )}
               </AnimatePresence>
 
-              {/* Try me — reappears when response is done */}
-              <AnimatePresence>
-                {displayPhase === 'done' && remainingCards.length > 0 && (
-                  <motion.div
-                    key="try-me-conv"
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.28, delay: 0.3, ease: ease.out }}
-                    ref={tryMeRef}
-                    style={{ position: 'relative', width: 'fit-content', marginTop: 4 }}
-                  >
-                    <motion.button
-                      whileHover={{ background: colors.primaryLight, borderColor: `${colors.primary}40` }}
-                      whileTap={{ scale: 0.97 }}
-                      onClick={() => setTryMeOpen(o => !o)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 7,
-                        padding: '8px 14px',
-                        background: tryMeOpen ? colors.primaryLight : colors.white,
-                        border: `1.5px solid ${tryMeOpen ? `${colors.primary}40` : colors.gray200}`,
-                        borderRadius: 20,
-                        cursor: 'pointer',
-                        fontSize: 13.5, fontWeight: 600, color: colors.primary,
-                        transition: 'all 0.15s',
-                      }}
-                    >
-                      <span style={{ fontSize: 14 }}>✦</span>
-                      Try another
-                      <motion.span
-                        animate={{ rotate: tryMeOpen ? 180 : 0 }}
-                        transition={{ duration: 0.2 }}
-                        style={{ display: 'flex', alignItems: 'center', fontSize: 10, color: colors.primary, opacity: 0.7 }}
-                      >
-                        ▾
-                      </motion.span>
-                    </motion.button>
-
-                    <AnimatePresence>
-                      {tryMeOpen && (
-                        <motion.div
-                          key="try-me-conv-dropdown"
-                          initial={{ opacity: 0, y: -6, scale: 0.97 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -4, scale: 0.97, transition: { duration: 0.15 } }}
-                          transition={{ duration: 0.2, ease: ease.out }}
-                          style={{
-                            position: 'absolute',
-                            bottom: 'calc(100% + 8px)',
-                            left: 0,
-                            background: colors.white,
-                            border: `1px solid ${colors.gray200}`,
-                            borderRadius: 12,
-                            boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
-                            overflow: 'hidden',
-                            minWidth: 280,
-                            zIndex: 10,
-                          }}
-                        >
-                          {remainingCards.map((card, i) => {
-                            const label = card.segments.map(s => s.text).join('');
-                            const prompt = card.prompt ?? label;
-                            return (
-                              <motion.button
-                                key={card.id}
-                                initial={{ opacity: 0, x: -6 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.18, delay: i * 0.05 }}
-                                whileHover={{ background: colors.primaryLight }}
-                                whileTap={{ scale: 0.99 }}
-                                onClick={() => {
-                                  setTryMeOpen(false);
-                                  setTriedCardIds(prev => new Set([...prev, card.id]));
-                                  clearTimers();
-                                  startConversation(prompt, 1400);
-                                }}
-                                style={{
-                                  display: 'flex', alignItems: 'center', gap: 10,
-                                  width: '100%', textAlign: 'left',
-                                  padding: '11px 14px',
-                                  background: 'transparent', border: 'none',
-                                  borderBottom: i < remainingCards.length - 1 ? `1px solid ${colors.gray100}` : 'none',
-                                  cursor: 'pointer',
-                                  transition: 'background 0.12s',
-                                }}
-                              >
-                                <span style={{ fontSize: 13, color: colors.primary, flexShrink: 0 }}>↳</span>
-                                <span style={{ fontSize: 13.5, color: colors.gray900, lineHeight: 1.4, fontWeight: 450 }}>{label}</span>
-                              </motion.button>
-                            );
-                          })}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
@@ -625,6 +424,35 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
         )}
       </AnimatePresence>
 
+
+      {/* ── Card stack (above composer) ── */}
+      <AnimatePresence>
+        {showCardStack && (
+          <motion.div
+            key="ftux-card-stack"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8, transition: { duration: 0.2 } }}
+            transition={{ duration: 0.3, ease: ease.out }}
+            style={{ flexShrink: 0, position: 'relative', padding: '16px 14px 4px' }}
+          >
+            {/* Floating dismiss button — top right */}
+            <DismissButton onClick={() => setCardsDismissed(true)} />
+            <p style={{ fontSize: 11, fontWeight: 600, color: colors.gray400, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
+              Try an example
+            </p>
+            <PromptCardStack
+              prompts={remainingCards}
+              onSelect={(text) => {
+                const card = remainingCards.find(c => (c.prompt ?? c.segments.map(s => s.text).join('')) === text);
+                if (card) setTriedCardIds(prev => new Set([...prev, card.id]));
+                clearTimers();
+                startConversation(text, 1400);
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Composer */}
       <div style={{ padding: '8px 12px 6px', flexShrink: 0 }}>
@@ -975,6 +803,54 @@ function CopilotPromptStack({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Dismiss button with tooltip ─────────────────────────────────────────────
+
+function DismissButton({ onClick }: { onClick: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div style={{ position: 'absolute', top: 18, right: 16, zIndex: 40 }}>
+      <motion.button
+        onHoverStart={() => setHovered(true)}
+        onHoverEnd={() => setHovered(false)}
+        whileHover={{ background: colors.gray150, color: colors.gray700 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={onClick}
+        style={{
+          width: 22, height: 22, borderRadius: 6,
+          background: 'transparent',
+          border: 'none',
+          color: colors.gray400, fontSize: 13,
+          cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 0,
+        }}
+      >
+        ✕
+      </motion.button>
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            key="tooltip"
+            initial={{ opacity: 0, y: 2 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 2 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              position: 'absolute', top: 'calc(100% + 5px)', right: 0,
+              background: colors.gray900, color: colors.white,
+              fontSize: 11, fontWeight: 500,
+              padding: '3px 8px', borderRadius: 5,
+              whiteSpace: 'nowrap', pointerEvents: 'none',
+            }}
+          >
+            Dismiss all
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

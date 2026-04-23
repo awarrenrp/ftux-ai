@@ -348,7 +348,7 @@ export type { Segment, PromptCard };
 
 // ─── Card stack ───────────────────────────────────────────────────────────────
 
-export const CARD_H = 144;
+export const CARD_H = 128;
 
 // Visual config for each stack slot (front → back)
 const SLOT_CFG = [
@@ -416,7 +416,7 @@ export function PromptCardStack({
                   ? `1.5px solid ${colors.primary}50`
                   : `1px solid ${colors.gray200}`,
                 boxShadow: isFront ? shadows.md : shadows.sm,
-                padding: '16px 18px',
+                padding: '16px 18px 44px',
                 cursor: isFront ? 'pointer' : 'default',
                 zIndex: cfg.zIndex,
                 display: 'flex',
@@ -463,36 +463,35 @@ export function PromptCardStack({
                       </p>
                     </>
                   )}
-                  <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', paddingTop: prompt.illustration ? 2 : 6 }}>
-                    <div style={{ display: 'flex', gap: 4 }}>
-                      {[
-                        { label: '←', action: cyclePrev },
-                        { label: '→', action: cycleNext },
-                      ].map(({ label, action }) => (
-                        <motion.button
-                          key={label}
-                          whileHover={{ background: 'rgba(0,0,0,0.06)', color: colors.gray700 }}
-                          whileTap={buttonTap}
-                          onClick={(e) => { e.stopPropagation(); action(e); }}
-                          style={{
-                            width: 24, height: 24,
-                            borderRadius: 6,
-                            background: colors.gray100,
-                            border: `1px solid ${colors.gray200}`,
-                            color: colors.gray500,
-                            fontSize: 12,
-                            cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            padding: 0,
-                          }}
-                        >
-                          {label}
-                        </motion.button>
-                      ))}
-                    </div>
-                    <span style={{ fontSize: 11.5, fontWeight: 600, color: colors.primary }}>
-                      Try this →
-                    </span>
+                  {/* Arrows — always pinned to bottom-left */}
+                  <div
+                    style={{ position: 'absolute', bottom: 14, left: 18, display: 'flex', gap: 2 }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {[
+                      { label: '←', action: cyclePrev },
+                      { label: '→', action: cycleNext },
+                    ].map(({ label, action }) => (
+                      <motion.button
+                        key={label}
+                        whileHover={{ color: colors.gray900 }}
+                        whileTap={buttonTap}
+                        onClick={(e) => { e.stopPropagation(); action(e); }}
+                        style={{
+                          width: 24, height: 24,
+                          borderRadius: 6,
+                          background: 'transparent',
+                          border: 'none',
+                          color: colors.gray400,
+                          fontSize: 13,
+                          cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          padding: 0,
+                        }}
+                      >
+                        {label}
+                      </motion.button>
+                    ))}
                   </div>
                 </>
               )}
