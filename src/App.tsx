@@ -275,25 +275,22 @@ export default function App() {
 
 const SPLASH_PROMPT_CARDS: PromptCard[] = [
   {
-    id: 'questions',
-    segments: [{ text: 'What can I do with Rippling AI?', type: 'text' }],
-    caption: 'Discover everything Rippling AI can help you with',
-    prompt: 'What can I do with Rippling AI?',
+    id: 'paystubs',
+    segments: [{ text: 'Take me to my pay stubs', type: 'text' }],
+    caption: 'Quickly access your pay history',
+    prompt: 'Take me to my pay stubs',
   },
   {
-    id: 'pto',
-    segments: [{ text: "Who hasn't taken PTO this year?", type: 'text' }],
-    caption: 'Query your whole team in seconds',
-    prompt: "Who hasn't taken PTO this year?",
+    id: 'timeoff',
+    segments: [{ text: 'How do I request time off?', type: 'text' }],
+    caption: 'Learn how to submit a time-off request',
+    prompt: 'How do I request time off?',
   },
   {
-    id: 'payroll',
-    segments: [
-      { text: '@payroll', type: 'command' },
-      { text: ' What drove the cost increase last month?', type: 'text' },
-    ],
-    caption: 'Reference any data source with @',
-    prompt: '@payroll What drove the engineering cost increase last month?',
+    id: 'manager',
+    segments: [{ text: 'Who is my manager, and what department and work location am I listed under?', type: 'text' }],
+    caption: 'Look up your org details instantly',
+    prompt: 'Who is my manager, and what department and work location am I listed under?',
   },
 ];
 

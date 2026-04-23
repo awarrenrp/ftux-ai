@@ -53,6 +53,32 @@ const RESPONSES: Record<string, ResponseLine[]> = {
     { type: 'bullet',  text: 'Operations: Jamie Torres, Casey Kim' },
     { type: 'note',    text: 'Policy: 15 days/year · unused days expire Dec 31.' },
   ],
+  // ── Try me prompts ──
+  "Take me to my pay stubs": [
+    { type: 'heading', text: 'Your Pay Stubs' },
+    { type: 'subhead', text: 'Most recent first · direct deposit' },
+    { type: 'bullet',  text: 'Apr 1, 2026 — $4,620.00 net · view' },
+    { type: 'bullet',  text: 'Mar 15, 2026 — $4,620.00 net · view' },
+    { type: 'bullet',  text: 'Mar 1, 2026 — $4,620.00 net · view' },
+    { type: 'bullet',  text: 'Feb 15, 2026 — $4,200.00 net · view' },
+    { type: 'note',    text: 'You can download any stub as a PDF from your Pay page.' },
+  ],
+  "How do I request time off?": [
+    { type: 'heading', text: 'Requesting Time Off' },
+    { type: 'body',    text: 'Here\'s how to submit a time-off request in Rippling:' },
+    { type: 'bullet',  text: 'Go to Time Off → click "Request Time Off"' },
+    { type: 'bullet',  text: 'Select the type (vacation, sick, personal, etc.)' },
+    { type: 'bullet',  text: 'Choose your start and end dates' },
+    { type: 'bullet',  text: 'Add an optional note, then submit' },
+    { type: 'note',    text: 'Your manager will be notified and can approve or decline from their inbox.' },
+  ],
+  "Who is my manager, and what department and work location am I listed under?": [
+    { type: 'heading', text: 'Your Org Details' },
+    { type: 'bullet',  text: 'Manager: Sarah Kim · Senior Director, People Operations' },
+    { type: 'bullet',  text: 'Department: People Operations' },
+    { type: 'bullet',  text: 'Work location: San Francisco, CA (Hybrid)' },
+    { type: 'note',    text: 'Need to update something? Contact your HR admin or Sarah directly.' },
+  ],
   // ── Welcome variant prompts ──
   "Help me understand my benefits": [
     { type: 'heading', text: 'Your Benefits Summary' },
@@ -112,7 +138,8 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
 
   // Try me dropdown
   const [tryMeOpen, setTryMeOpen] = useState(false);
-  const [tryMeUsed, setTryMeUsed] = useState(false);
+  const [triedCardIds, setTriedCardIds] = useState<Set<string>>(new Set());
+  const remainingCards = (ftuxCards ?? []).filter(c => !triedCardIds.has(c.id));
   const tryMeRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!tryMeOpen) return;
@@ -173,7 +200,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
     setConvPhase('idle');
     setVisibleLines(0);
     setDismissedPills(new Set());
-    setTryMeUsed(false);
+    setTriedCardIds(new Set());
   }
 
   // Derived display values — prevent a one-frame idle flash when autoFirePrompt first lands.
@@ -292,7 +319,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                           zIndex: 10,
                         }}
                       >
-                        {(ftuxCards ?? []).map((card, i) => {
+                        {remainingCards.map((card, i) => {
                           const label = card.segments.map(s => s.text).join('');
                           const prompt = card.prompt ?? label;
                           return (
@@ -305,6 +332,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                               whileTap={{ scale: 0.99 }}
                               onClick={() => {
                                 setTryMeOpen(false);
+                                setTriedCardIds(prev => new Set([...prev, card.id]));
                                 clearTimers();
                                 startConversation(prompt, 1400);
                               }}
@@ -313,7 +341,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                                 width: '100%', textAlign: 'left',
                                 padding: '11px 14px',
                                 background: 'transparent', border: 'none',
-                                borderBottom: i < (ftuxCards ?? []).length - 1 ? `1px solid ${colors.gray100}` : 'none',
+                                borderBottom: i < remainingCards.length - 1 ? `1px solid ${colors.gray100}` : 'none',
                                 cursor: 'pointer',
                                 transition: 'background 0.12s',
                               }}
@@ -404,7 +432,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
 
               {/* Try me — reappears when response is done */}
               <AnimatePresence>
-                {displayPhase === 'done' && !!ftuxCards && ftuxCards.length > 0 && !tryMeUsed && (
+                {displayPhase === 'done' && remainingCards.length > 0 && (
                   <motion.div
                     key="try-me-conv"
                     initial={{ opacity: 0, y: 6 }}
@@ -461,7 +489,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                             zIndex: 10,
                           }}
                         >
-                          {ftuxCards.map((card, i) => {
+                          {remainingCards.map((card, i) => {
                             const label = card.segments.map(s => s.text).join('');
                             const prompt = card.prompt ?? label;
                             return (
@@ -474,7 +502,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                                 whileTap={{ scale: 0.99 }}
                                 onClick={() => {
                                   setTryMeOpen(false);
-                                  setTryMeUsed(true);
+                                  setTriedCardIds(prev => new Set([...prev, card.id]));
                                   clearTimers();
                                   startConversation(prompt, 1400);
                                 }}
@@ -483,7 +511,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                                   width: '100%', textAlign: 'left',
                                   padding: '11px 14px',
                                   background: 'transparent', border: 'none',
-                                  borderBottom: i < ftuxCards.length - 1 ? `1px solid ${colors.gray100}` : 'none',
+                                  borderBottom: i < remainingCards.length - 1 ? `1px solid ${colors.gray100}` : 'none',
                                   cursor: 'pointer',
                                   transition: 'background 0.12s',
                                 }}
