@@ -348,7 +348,7 @@ export type { Segment, PromptCard };
 
 // ─── Card stack ───────────────────────────────────────────────────────────────
 
-export const CARD_H = 128;
+export const CARD_H = 116;
 
 // Visual config for each stack slot (front → back)
 const SLOT_CFG = [
@@ -360,9 +360,11 @@ const SLOT_CFG = [
 export function PromptCardStack({
   prompts,
   onSelect,
+  onDismiss,
 }: {
   prompts: PromptCard[];
   onSelect: (prompt: string) => void;
+  onDismiss?: () => void;
 }) {
   const n = prompts.length;
   const [frontIdx, setFrontIdx] = useState(0);
@@ -428,6 +430,8 @@ export function PromptCardStack({
             >
               {isFront && (
                 <>
+                  {/* Dismiss button — top right of front card */}
+                  {onDismiss && <DismissAllButton onDismiss={onDismiss} />}
                   {prompt.illustration ? (
                     /* ── Illustrated card layout ── */
                     <>
@@ -447,10 +451,10 @@ export function PromptCardStack({
                     <>
                       <p style={{
                         fontSize: 14,
-                        fontWeight: 600,
-                        color: colors.gray900,
+                        fontWeight: 400,
+                        color: '#000',
                         lineHeight: 1.4,
-                        letterSpacing: '-0.1px',
+                        paddingRight: 28,
                       }}>
                         {prompt.segments.map((seg, i) =>
                           seg.type === 'command'
@@ -500,6 +504,53 @@ export function PromptCardStack({
         })}
       </div>
 
+    </div>
+  );
+}
+
+// ─── Dismiss all button with tooltip ─────────────────────────────────────────
+
+function DismissAllButton({ onDismiss }: { onDismiss: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 10 }}>
+      <motion.button
+        onHoverStart={() => setHovered(true)}
+        onHoverEnd={() => setHovered(false)}
+        whileHover={{ color: colors.gray700 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={(e) => { e.stopPropagation(); onDismiss(); }}
+        style={{
+          width: 20, height: 20,
+          background: 'transparent', border: 'none',
+          color: colors.gray400, fontSize: 13,
+          cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 0,
+        }}
+      >
+        ✕
+      </motion.button>
+      <AnimatePresence>
+        {hovered && (
+          <motion.div
+            key="tooltip"
+            initial={{ opacity: 0, y: 2 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 2 }}
+            transition={{ duration: 0.15 }}
+            style={{
+              position: 'absolute', top: 'calc(100% + 5px)', right: 0,
+              background: colors.gray900, color: colors.white,
+              fontSize: 11, fontWeight: 500,
+              padding: '3px 8px', borderRadius: 5,
+              whiteSpace: 'nowrap', pointerEvents: 'none',
+            }}
+          >
+            Dismiss all
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

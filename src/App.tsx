@@ -277,18 +277,18 @@ const SPLASH_PROMPT_CARDS: PromptCard[] = [
   {
     id: 'paystubs',
     segments: [{ text: 'Take me to my pay stubs', type: 'text' }],
-    caption: 'Quickly access your pay history',
+    caption: 'Move around Rippling naturally',
     prompt: 'Take me to my pay stubs',
   },
   {
     id: 'timeoff',
-    segments: [{ text: 'How do I request time off?', type: 'text' }],
-    caption: 'Learn how to submit a time-off request',
+    segments: [{ text: 'Submit a time-off request', type: 'text' }],
+    caption: 'Ask questions about policies or get help',
     prompt: 'How do I request time off?',
   },
   {
     id: 'manager',
-    segments: [{ text: 'Who is my manager, and what department and work location am I listed under?', type: 'text' }],
+    segments: [{ text: 'Who is my manager?', type: 'text' }],
     caption: 'Look up your org details instantly',
     prompt: 'Who is my manager, and what department and work location am I listed under?',
   },
