@@ -833,11 +833,11 @@ function DarkResponseLine({ line, index, onQuestionsComplete }: { line: Response
   // ── Make reports ──────────────────────────────────────────────────────────
   if (line.type === 'cap-reports') {
     const BARS = [
-      { label: 'HR',   value: 42 },
-      { label: 'Fin',  value: 28 },
-      { label: 'IT',   value: 35 },
-      { label: 'Eng',  value: 67, highlight: true },
-      { label: 'Sales',value: 51 },
+      { label: 'HR',    value: 42, color: '#74B5E8' },
+      { label: 'Fin',   value: 28, color: '#4CAD87' },
+      { label: 'IT',    value: 35, color: '#A78BFA' },
+      { label: 'Eng',   value: 67, color: '#F9C85A', highlight: true },
+      { label: 'Sales', value: 51, color: '#F47B7B' },
     ];
     const max = Math.max(...BARS.map(b => b.value));
     return (
@@ -849,22 +849,24 @@ function DarkResponseLine({ line, index, onQuestionsComplete }: { line: Response
           Spend by department
         </p>
         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', height: 72 }}>
-          {BARS.map((bar) => (
+          {BARS.map((bar, i) => (
             <div key={bar.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
-              <span style={{ fontSize: 9.5, color: bar.highlight ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.45)', fontWeight: bar.highlight ? 700 : 400 }}>
+              <span style={{ fontSize: 9.5, color: bar.highlight ? bar.color : 'rgba(255,255,255,0.5)', fontWeight: bar.highlight ? 700 : 400 }}>
                 {bar.value}{bar.highlight ? ' ↑' : ''}
               </span>
               <motion.div
                 initial={{ height: 0 }}
                 animate={{ height: `${Math.round((bar.value / max) * 52)}px` }}
-                transition={{ duration: 0.4, delay: 0.1, ease: ease.out }}
+                transition={{ duration: 0.4, delay: 0.08 + i * 0.06, ease: ease.out }}
                 style={{
                   width: '100%',
-                  background: bar.highlight ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)',
+                  background: bar.color,
+                  opacity: bar.highlight ? 1 : 0.55,
                   borderRadius: '3px 3px 0 0',
+                  boxShadow: bar.highlight ? `0 0 8px ${bar.color}88` : 'none',
                 }}
               />
-              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)' }}>{bar.label}</span>
+              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{bar.label}</span>
             </div>
           ))}
         </div>
