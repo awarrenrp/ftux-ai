@@ -18,7 +18,7 @@ interface AIChatPanelProps {
   demoIdle?: boolean;
   /** Framer-style stacked prompt cards rendered above the input bar */
   ftuxCards?: PromptCard[];
-  /** Expands to full-screen centered layout (712px content width) */
+  /** Expands to full-screen centered layout (600px content width) */
   fullScreen?: boolean;
 }
 
@@ -239,7 +239,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                 flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
                 paddingBottom: fullScreen ? 0 : 8,
                 width: '100%',
-                ...(fullScreen ? { maxWidth: 712 } : {}),
+                ...(fullScreen ? { maxWidth: 600 } : {}),
               }}
             >
               {/* Greeting */}
@@ -272,7 +272,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
               style={{
                 display: 'flex', flexDirection: 'column', gap: 14,
                 width: '100%',
-                ...(fullScreen ? { maxWidth: 712 } : {}),
+                ...(fullScreen ? { maxWidth: 600 } : {}),
               }}
             >
               {/* User bubble */}
@@ -454,7 +454,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
             }}
           >
             {fullScreen ? (
-              <div style={{ width: '100%', maxWidth: 712 }}>
+              <div style={{ width: '100%', maxWidth: 600 }}>
                 <p style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)', marginBottom: 12 }}>
                   Get started by asking your first question to Rippling AI
                 </p>
@@ -508,7 +508,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
 
       {/* Composer */}
       <div style={{ padding: fullScreen ? '0 0 70px' : '8px 12px 6px', flexShrink: 0, ...(fullScreen ? { display: 'flex', justifyContent: 'center' } : {}) }}>
-        <div style={fullScreen ? { width: '100%', maxWidth: 712 } : {}}>
+        <div style={fullScreen ? { width: '100%', maxWidth: 600 } : {}}>
         <motion.div
           id="prompt-input"
           animate={displayPhase === 'done' ? {
@@ -576,7 +576,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
         <p style={{ fontSize: 10.5, color: colors.gray400, textAlign: 'center', marginTop: 6, paddingBottom: 2 }}>
           Rippling AI results may be inaccurate. Review before acting.
         </p>
-        </div>{/* end 712px centering wrapper */}
+        </div>{/* end 600px centering wrapper */}
       </div>
 
       {/* Copilot suggestion chips — below the input, individually dismissable */}
