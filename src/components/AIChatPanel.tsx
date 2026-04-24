@@ -57,30 +57,26 @@ const RESPONSES: Record<string, ResponseLine[]> = {
     { type: 'note',    text: 'Policy: 15 days/year · unused days expire Dec 31.' },
   ],
   // ── Try me prompts ──
-  "Take me to my pay stubs": [
-    { type: 'heading', text: 'Your Pay Stubs' },
-    { type: 'subhead', text: 'Most recent first · direct deposit' },
-    { type: 'bullet',  text: 'Apr 1, 2026 — $4,620.00 net · view' },
-    { type: 'bullet',  text: 'Mar 15, 2026 — $4,620.00 net · view' },
-    { type: 'bullet',  text: 'Mar 1, 2026 — $4,620.00 net · view' },
-    { type: 'bullet',  text: 'Feb 15, 2026 — $4,200.00 net · view' },
-    { type: 'note',    text: 'You can download any stub as a PDF from your Pay page.' },
+  "Compare my last 2 paystubs": [
+    { type: 'heading', text: 'Your Last 2 Paystubs' },
+    { type: 'subhead', text: 'Net pay · direct deposit' },
+    { type: 'bullet',  text: 'Apr 1, 2026 — $4,620.00 net' },
+    { type: 'bullet',  text: 'Mar 15, 2026 — $4,620.00 net' },
+    { type: 'note',    text: 'No change between periods. Your next payday is Apr 15.' },
   ],
-  "How do I request time off?": [
-    { type: 'heading', text: 'Requesting Time Off' },
-    { type: 'body',    text: 'Here\'s how to submit a time-off request in Rippling:' },
-    { type: 'bullet',  text: 'Go to Time Off → click "Request Time Off"' },
-    { type: 'bullet',  text: 'Select the type (vacation, sick, personal, etc.)' },
-    { type: 'bullet',  text: 'Choose your start and end dates' },
-    { type: 'bullet',  text: 'Add an optional note, then submit' },
-    { type: 'note',    text: 'Your manager will be notified and can approve or decline from their inbox.' },
+  "What will it cost me to visit the doctor": [
+    { type: 'heading', text: 'Your Out-of-Pocket Cost to See a Doctor' },
+    { type: 'subhead', text: 'Blue Shield of CA · PPO Gold' },
+    { type: 'bullet',  text: 'Primary care visit: $30 copay (deductible met)' },
+    { type: 'bullet',  text: 'Specialist visit: $60 copay' },
+    { type: 'bullet',  text: 'Urgent care: $75 copay' },
+    { type: 'note',    text: 'You\'ve met $340 of your $1,200 individual deductible this year.' },
   ],
-  "Who is my manager, and what department and work location am I listed under?": [
-    { type: 'heading', text: 'Your Org Details' },
-    { type: 'bullet',  text: 'Manager: Sarah Kim · Senior Director, People Operations' },
-    { type: 'bullet',  text: 'Department: People Operations' },
-    { type: 'bullet',  text: 'Work location: San Francisco, CA (Hybrid)' },
-    { type: 'note',    text: 'Need to update something? Contact your HR admin or Sarah directly.' },
+  "Take me to my employee handbook": [
+    { type: 'heading', text: 'Employee Handbook' },
+    { type: 'body',    text: 'Here\'s a quick link to your handbook on file:' },
+    { type: 'bullet',  text: 'Rippling Employee Handbook — v2.4 · Updated Jan 2026 · view →' },
+    { type: 'note',    text: 'You can also find this under Documents in your Rippling profile.' },
   ],
   // ── Welcome variant prompts ──
   "Help me understand my benefits": [

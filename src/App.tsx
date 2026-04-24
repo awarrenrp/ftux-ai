@@ -282,21 +282,21 @@ export default function App() {
 const SPLASH_PROMPT_CARDS: PromptCard[] = [
   {
     id: 'paystubs',
-    segments: [{ text: 'Take me to my pay stubs', type: 'text' }],
+    segments: [{ text: 'Compare my last 2 paystubs', type: 'text' }],
+    caption: 'Instantly surface your pay history',
+    prompt: 'Compare my last 2 paystubs',
+  },
+  {
+    id: 'doctor',
+    segments: [{ text: 'What will it cost me to visit the doctor', type: 'text' }],
+    caption: 'Understand your benefits in plain English',
+    prompt: 'What will it cost me to visit the doctor',
+  },
+  {
+    id: 'handbook',
+    segments: [{ text: 'Take me to my employee handbook', type: 'text' }],
     caption: 'Move around Rippling naturally',
-    prompt: 'Take me to my pay stubs',
-  },
-  {
-    id: 'timeoff',
-    segments: [{ text: 'Submit a time-off request', type: 'text' }],
-    caption: 'Ask questions about policies or get help',
-    prompt: 'How do I request time off?',
-  },
-  {
-    id: 'manager',
-    segments: [{ text: 'Who is my manager?', type: 'text' }],
-    caption: 'Look up your org details instantly',
-    prompt: 'Who is my manager, and what department and work location am I listed under?',
+    prompt: 'Take me to my employee handbook',
   },
 ];
 
