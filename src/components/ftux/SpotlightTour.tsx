@@ -255,6 +255,8 @@ interface RipplingShellProps {
   chatDemoActive?: boolean;
   ftuxPrompts?: string[];
   ftuxCards?: PromptCard[];
+  /** When true, shows inline "↳" example links; when false/undefined, shows PromptCardStack */
+  ftuxCardsInline?: boolean;
   autoFirePrompt?: string;
   inputSuggestions?: string[];
   buildReveal?: boolean;
@@ -338,7 +340,7 @@ function RipplingNavBar() {
   );
 }
 
-export function RipplingShell({ chatDemoActive = false, ftuxPrompts, ftuxCards, autoFirePrompt, inputSuggestions, buildReveal, demoIdle }: RipplingShellProps) {
+export function RipplingShell({ chatDemoActive = false, ftuxPrompts, ftuxCards, ftuxCardsInline, autoFirePrompt, inputSuggestions, buildReveal, demoIdle }: RipplingShellProps) {
   // One-way gate: starts hidden when buildReveal mode is active, becomes true on reveal
   const [revealed, setRevealed] = useState(buildReveal === undefined ? true : false);
 
@@ -362,7 +364,7 @@ export function RipplingShell({ chatDemoActive = false, ftuxPrompts, ftuxCards, 
       <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: colors.white }}>
         <RipplingNavBar />
         <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
-          <AIChatPanel showSuggestions={false} ftuxCards={ftuxCards} fullScreen />
+          <AIChatPanel showSuggestions={false} ftuxCards={ftuxCards} fullScreen inlineExamples={ftuxCardsInline} />
         </div>
       </div>
     );

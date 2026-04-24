@@ -20,6 +20,8 @@ interface AIChatPanelProps {
   ftuxCards?: PromptCard[];
   /** Expands to full-screen centered layout (600px content width) */
   fullScreen?: boolean;
+  /** When true and fullScreen, renders simple inline "↳" example links instead of PromptCardStack */
+  inlineExamples?: boolean;
 }
 
 // ─── Response data ────────────────────────────────────────────────────────────
@@ -113,7 +115,7 @@ const suggestedPrompts = [
 
 type ConvPhase = 'idle' | 'thinking' | 'streaming' | 'done';
 
-export function AIChatPanel({ showSuggestions = true, highlightInput = false, ftuxPrompts, autoFirePrompt, inputSuggestions, demoIdle, ftuxCards, fullScreen }: AIChatPanelProps) {
+export function AIChatPanel({ showSuggestions = true, highlightInput = false, ftuxPrompts, autoFirePrompt, inputSuggestions, demoIdle, ftuxCards, fullScreen, inlineExamples }: AIChatPanelProps) {
   const demoMode = !!ftuxPrompts || !!autoFirePrompt || !!inputSuggestions || !!demoIdle || !!ftuxCards;
 
   // Pill state — track individually so clicking one prompt keeps the others visible
@@ -453,7 +455,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
               ...(fullScreen ? { display: 'flex', justifyContent: 'center' } : {}),
             }}
           >
-            {fullScreen ? (
+            {fullScreen && inlineExamples ? (
               <div style={{ width: '100%', maxWidth: 600 }}>
                 <p style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)', marginBottom: 12 }}>
                   Get started by asking your first question to Rippling AI

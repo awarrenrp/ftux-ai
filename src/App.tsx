@@ -8,7 +8,7 @@ import { SpotlightTour, RipplingShell } from './components/ftux/SpotlightTour';
 import { WelcomeModal } from './components/ftux/WelcomeModal';
 import type { PromptCard } from './components/ftux/WelcomeModal';
 
-type Variant = 'splash' | 'modal' | 'spotlight' | 'welcome';
+type Variant = 'splash' | 'splash2' | 'modal' | 'spotlight' | 'welcome';
 
 interface VariantConfig {
   id: Variant;
@@ -18,10 +18,11 @@ interface VariantConfig {
 }
 
 const variants: VariantConfig[] = [
-  { id: 'splash',    label: 'Splash',      icon: '✦',  tagline: 'Animated dark intro screen' },
-  { id: 'modal',     label: 'Walkthrough', icon: '📖', tagline: 'Teach prompting step-by-step' },
-  { id: 'spotlight', label: 'Spotlight',   icon: '🔦', tagline: 'Tour the AI chat panel' },
-  { id: 'welcome',   label: 'Welcome',     icon: '👋', tagline: 'Welcome modal + prompt starter' },
+  { id: 'splash',    label: 'Splash',        icon: '✦',  tagline: 'Animated dark intro → inline examples' },
+  { id: 'splash2',   label: 'Splash + Cards', icon: '✦',  tagline: 'Animated dark intro → card stack' },
+  { id: 'modal',     label: 'Walkthrough',   icon: '📖', tagline: 'Teach prompting step-by-step' },
+  { id: 'spotlight', label: 'Spotlight',     icon: '🔦', tagline: 'Tour the AI chat panel' },
+  { id: 'welcome',   label: 'Welcome',       icon: '👋', tagline: 'Welcome modal + prompt starter' },
 ];
 
 export default function App() {
@@ -71,7 +72,7 @@ export default function App() {
     <div style={{ minHeight: '100vh', background: colors.gray50 }}>
       {/* Fixed close button — only during the splash demo state */}
       <AnimatePresence>
-        {active === 'splash' && splashDone && !splashExited && (
+        {(active === 'splash' || active === 'splash2') && splashDone && !splashExited && (
           <motion.button
             key="splash-close"
             initial={{ opacity: 0, y: -8 }}
@@ -220,12 +221,12 @@ export default function App() {
             >
               <motion.div
                 animate={
-                  active === 'splash' && !splashDone
+                  (active === 'splash' || active === 'splash2') && !splashDone
                     ? { opacity: 0.5, scale: 0.97, y: 14, filter: 'blur(3px)' }
                     : { opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }
                 }
                 transition={{ duration: 0.65, ease: [0.0, 0.0, 0.2, 1.0] }}
-                style={active === 'splash' && splashDone ? {
+                style={(active === 'splash' || active === 'splash2') && splashDone ? {
                   position: 'fixed',
                   inset: 0,
                   zIndex: 20,
@@ -241,16 +242,17 @@ export default function App() {
                 }}
               >
                 <RipplingShell
-                  chatDemoActive={active === 'splash' && splashDone && !splashExited}
-                  ftuxCards={active === 'splash' && splashDone ? SPLASH_PROMPT_CARDS : undefined}
+                  chatDemoActive={(active === 'splash' || active === 'splash2') && splashDone && !splashExited}
+                  ftuxCards={(active === 'splash' || active === 'splash2') && splashDone ? SPLASH_PROMPT_CARDS : undefined}
+                  ftuxCardsInline={active === 'splash' && splashDone}
                   autoFirePrompt={active === 'welcome' ? (welcomePrompt ?? undefined) : undefined}
-                  buildReveal={active === 'splash' ? splashDone : undefined}
+                  buildReveal={(active === 'splash' || active === 'splash2') ? splashDone : undefined}
                 />
               </motion.div>
 
               <AnimatePresence>
                 {/* Splash only shows its overlay while splashDone is false */}
-                {active === 'splash' && !splashDone && (
+                {(active === 'splash' || active === 'splash2') && !splashDone && (
                   <FullscreenSplash
                     key={`splash-${key}`}
                     onComplete={reset}
@@ -308,6 +310,10 @@ function LandingState({ onLaunch }: { onLaunch: (v: Variant) => void }) {
       detail: 'Dark full-screen overlay with ambient glow, floating prompt bubbles that scroll upward, word-by-word headline reveal, and a fake AI input bar.',
       tags: ['dark hero', 'floating bubbles', 'word stagger', 'spring CTA'],
     },
+    splash2: {
+      detail: 'Same animated dark intro as Splash, but transitions into the AI panel with a dismissable Framer-style card stack instead of inline example links.',
+      tags: ['dark hero', 'card stack', 'dismissable', 'spring CTA'],
+    },
     modal: {
       detail: 'Four-step modal that teaches prompting: intro → specificity → follow-ups → starter prompts. Each step slides in with directional transitions.',
       tags: ['directional slide', 'prompting tips', 'progress bar', 'AnimatePresence'],
@@ -322,7 +328,7 @@ function LandingState({ onLaunch }: { onLaunch: (v: Variant) => void }) {
     },
   };
 
-  const activeVariants  = variants.filter((v) => v.id === 'splash');
+  const activeVariants  = variants.filter((v) => v.id === 'splash' || v.id === 'splash2');
   const rejectedVariants = variants.filter((v) => v.id === 'modal' || v.id === 'spotlight' || v.id === 'welcome');
 
   return (
