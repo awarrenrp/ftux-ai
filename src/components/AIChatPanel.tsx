@@ -244,14 +244,19 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                 transition={{ duration: 0.4, ease: ease.out }}
                 style={{ marginBottom: 20 }}
               >
-                {/* Animated AI icon */}
-                <motion.div
-                  animate={{ boxShadow: ['0 0 0px rgba(122,0,93,0)', '0 0 18px rgba(122,0,93,0.25)', '0 0 0px rgba(122,0,93,0)'] }}
-                  transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
-                  style={{ width: 32, height: 32, borderRadius: 8, marginBottom: 12, display: 'inline-block' }}
-                >
-                  <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ width: 32, height: 32, borderRadius: 8, display: 'block' }} />
-                </motion.div>
+                {/* Animated AI icon — spinning gradient ring */}
+                <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, marginBottom: 16 }}>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 3.5, repeat: Infinity, ease: 'linear' }}
+                    style={{
+                      position: 'absolute', inset: 0, borderRadius: 11,
+                      background: 'conic-gradient(from 0deg, #7A005D, #C966A8, #F0B8E0, #7A005D)',
+                    }}
+                  />
+                  <div style={{ position: 'absolute', inset: 3, borderRadius: 8, background: colors.white }} />
+                  <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ position: 'absolute', top: 3, left: 3, width: 32, height: 32, borderRadius: 8, display: 'block', zIndex: 1 }} />
+                </div>
                 <p style={{ fontSize: 22, fontWeight: 500, color: colors.gray900, lineHeight: 1.2, marginBottom: 4 }}>Hi there,</p>
                 <p style={{ fontSize: 16, color: 'rgba(0,0,0,0.45)', lineHeight: 1.45 }}>What do you need help with?</p>
               </motion.div>

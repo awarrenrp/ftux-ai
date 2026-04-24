@@ -264,6 +264,80 @@ interface RipplingShellProps {
 const NAV_ITEMS = ['Home', 'People', 'Payroll', 'Benefits', 'IT', 'Finance'];
 const TABLE_ROWS = Array.from({ length: 6 });
 
+// ─── Rippling App Chrome ───────────────────────────────────────────────────────
+
+function RipplingNavBar() {
+  return (
+    <div style={{
+      background: '#4A0039',
+      height: 56,
+      display: 'flex',
+      alignItems: 'center',
+      flexShrink: 0,
+      width: '100%',
+    }}>
+      {/* Left: logo + suite name */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px', flexShrink: 0 }}>
+        <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <img src="/rippling-ai-icon.png" alt="Rippling" style={{ width: 24, height: 24, borderRadius: 4 }} />
+        </div>
+        <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.25)', flexShrink: 0 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 6px 0 10px', cursor: 'pointer' }}>
+          <span style={{ color: '#fff', fontSize: 15, fontWeight: 500, letterSpacing: '-0.1px' }}>Rippling AI</span>
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+            <path d="M3 4.5L6 7.5L9 4.5" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.25)', flexShrink: 0 }} />
+      </div>
+
+      {/* Center: search */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 24px' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          background: 'rgba(255,255,255,0.1)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          borderRadius: 7, padding: '0 14px',
+          height: 36, width: '100%', maxWidth: 520,
+          cursor: 'text',
+        }}>
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+            <circle cx="6" cy="6" r="4.5" stroke="rgba(255,255,255,0.45)" strokeWidth="1.25"/>
+            <path d="M9.5 9.5L12 12" stroke="rgba(255,255,255,0.45)" strokeWidth="1.25" strokeLinecap="round"/>
+          </svg>
+          <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: 13.5 }}>Search Rippling…</span>
+        </div>
+      </div>
+
+      {/* Right: actions + profile */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 0, padding: '0 8px 0 0', flexShrink: 0 }}>
+        {/* Icon buttons */}
+        {[
+          // Bell
+          <svg key="bell" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5C9 2.5 5.5 5.2 5.5 9.5V13H12.5V9.5C12.5 5.2 9 2.5 9 2.5Z" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25" strokeLinejoin="round"/><path d="M7.2 13C7.2 14 8 14.8 9 14.8C10 14.8 10.8 14 10.8 13" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/><circle cx="12.5" cy="4" r="2.5" fill="#D580BD"/></svg>,
+          // Help
+          <svg key="help" width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/><path d="M7 7.2C7 6 7.9 5.2 9 5.2C10.1 5.2 11 6 11 7C11 8 10.2 8.5 9.5 9C9.2 9.3 9 9.5 9 10" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25" strokeLinecap="round"/><circle cx="9" cy="12" r="0.7" fill="rgba(255,255,255,0.65)"/></svg>,
+          // Grid
+          <svg key="grid" width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="5" height="5" rx="1" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/><rect x="10" y="3" width="5" height="5" rx="1" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/><rect x="3" y="10" width="5" height="5" rx="1" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/><rect x="10" y="10" width="5" height="5" rx="1" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/></svg>,
+        ].map((icon, i) => (
+          <div key={i} style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, cursor: 'pointer' }}>
+            {icon}
+          </div>
+        ))}
+        {/* Divider */}
+        <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.25)', margin: '0 8px' }} />
+        {/* Profile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '4px 10px', cursor: 'pointer' }}>
+          <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13.5 }}>Acme, Inc.</span>
+          <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', border: '1.5px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, letterSpacing: '-0.3px' }}>AW</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function RipplingShell({ chatDemoActive = false, ftuxPrompts, ftuxCards, autoFirePrompt, inputSuggestions, buildReveal, demoIdle }: RipplingShellProps) {
   // One-way gate: starts hidden when buildReveal mode is active, becomes true on reveal
   const [revealed, setRevealed] = useState(buildReveal === undefined ? true : false);
@@ -285,8 +359,11 @@ export function RipplingShell({ chatDemoActive = false, ftuxPrompts, ftuxCards, 
   // Full-screen mode when ftuxCards provided (splash post-transition)
   if (ftuxCards && ftuxCards.length > 0) {
     return (
-      <div style={{ width: '100%', height: '100%', background: colors.white }}>
-        <AIChatPanel showSuggestions={false} ftuxCards={ftuxCards} fullScreen />
+      <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: colors.white }}>
+        <RipplingNavBar />
+        <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+          <AIChatPanel showSuggestions={false} ftuxCards={ftuxCards} fullScreen />
+        </div>
       </div>
     );
   }
