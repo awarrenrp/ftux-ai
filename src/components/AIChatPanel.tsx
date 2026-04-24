@@ -168,8 +168,15 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
   // Card stack state
   const [cardsDismissed, setCardsDismissed] = useState(false);
   const [triedCardIds, setTriedCardIds] = useState<Set<string>>(new Set());
+  // When arriving via an action prompt (e.g. PTO button), delay showing cards by 5s
+  const [cardStackReady, setCardStackReady] = useState(!autoFirePrompt);
+  useEffect(() => {
+    if (!autoFirePrompt) return;
+    const t = setTimeout(() => setCardStackReady(true), 5000);
+    return () => clearTimeout(t);
+  }, [autoFirePrompt]);
   const remainingCards = (ftuxCards ?? []).filter(c => !triedCardIds.has(c.id));
-  const showCardStack = !!ftuxCards && ftuxCards.length > 0 && !cardsDismissed && remainingCards.length > 0;
+  const showCardStack = !!ftuxCards && ftuxCards.length > 0 && !cardsDismissed && remainingCards.length > 0 && cardStackReady;
 
   // Conversation state (demo mode only)
   const [convPrompt, setConvPrompt] = useState<string | null>(null);
