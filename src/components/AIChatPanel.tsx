@@ -18,6 +18,8 @@ interface AIChatPanelProps {
   demoIdle?: boolean;
   /** Framer-style stacked prompt cards rendered above the input bar */
   ftuxCards?: PromptCard[];
+  /** Expands to full-screen centered layout (712px content width) */
+  fullScreen?: boolean;
 }
 
 // ─── Response data ────────────────────────────────────────────────────────────
@@ -122,7 +124,7 @@ const suggestedPrompts = [
 
 type ConvPhase = 'idle' | 'thinking' | 'streaming' | 'done';
 
-export function AIChatPanel({ showSuggestions = true, highlightInput = false, ftuxPrompts, autoFirePrompt, inputSuggestions, demoIdle, ftuxCards }: AIChatPanelProps) {
+export function AIChatPanel({ showSuggestions = true, highlightInput = false, ftuxPrompts, autoFirePrompt, inputSuggestions, demoIdle, ftuxCards, fullScreen }: AIChatPanelProps) {
   const demoMode = !!ftuxPrompts || !!autoFirePrompt || !!inputSuggestions || !!demoIdle || !!ftuxCards;
 
   // Pill state — track individually so clicking one prompt keeps the others visible
@@ -202,12 +204,13 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
   const responseLines = displayPrompt ? (RESPONSES[displayPrompt] ?? []) : [];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: colors.white, fontFamily: 'inherit' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%', background: colors.white, fontFamily: 'inherit' }}>
 
       {/* Header */}
       <div id="chat-header" style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '11px 14px', borderBottom: `1px solid ${colors.gray150}`, flexShrink: 0,
+        padding: fullScreen ? '14px 24px' : '11px 14px',
+        borderBottom: `1px solid ${colors.gray150}`, flexShrink: 0,
       }}>
         <button style={{ ...iconBtn, color: colors.gray400 }}><SidebarIcon /></button>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -228,7 +231,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
       </div>
 
       {/* Conversation area */}
-      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: fullScreen ? '32px 0 0' : '14px', display: 'flex', flexDirection: 'column', gap: 14, alignItems: fullScreen ? 'center' : 'stretch' }}>
 
         {/* ── Demo mode ── */}
         <AnimatePresence mode="wait">
@@ -238,7 +241,12 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, transition: { duration: 0.15 } }}
-              style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', paddingBottom: 8 }}
+              style={{
+                flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+                paddingBottom: fullScreen ? 0 : 8,
+                width: '100%',
+                ...(fullScreen ? { maxWidth: 712 } : {}),
+              }}
             >
               {/* Greeting */}
               <motion.div
@@ -247,7 +255,14 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                 transition={{ duration: 0.4, ease: ease.out }}
                 style={{ marginBottom: 20 }}
               >
-                <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ width: 32, height: 32, borderRadius: 8, marginBottom: 12, display: 'block' }} />
+                {/* Animated AI icon */}
+                <motion.div
+                  animate={{ boxShadow: ['0 0 0px rgba(122,0,93,0)', '0 0 18px rgba(122,0,93,0.25)', '0 0 0px rgba(122,0,93,0)'] }}
+                  transition={{ duration: 2.8, repeat: Infinity, ease: 'easeInOut' }}
+                  style={{ width: 32, height: 32, borderRadius: 8, marginBottom: 12, display: 'inline-block' }}
+                >
+                  <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ width: 32, height: 32, borderRadius: 8, display: 'block' }} />
+                </motion.div>
                 <p style={{ fontSize: 22, fontWeight: 500, color: colors.gray900, lineHeight: 1.2, marginBottom: 4 }}>Hi there,</p>
                 <p style={{ fontSize: 16, color: 'rgba(0,0,0,0.45)', lineHeight: 1.45 }}>What do you need help with?</p>
               </motion.div>
@@ -260,7 +275,11 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
               key="demo-conv"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+              style={{
+                display: 'flex', flexDirection: 'column', gap: 14,
+                width: '100%',
+                ...(fullScreen ? { maxWidth: 712 } : {}),
+              }}
             >
               {/* User bubble */}
               <motion.div
@@ -425,7 +444,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
       </AnimatePresence>
 
 
-      {/* ── Card stack (above composer) ── */}
+      {/* ── Examples / Card stack (above composer) ── */}
       <AnimatePresence>
         {showCardStack && (
           <motion.div
@@ -434,27 +453,68 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8, transition: { duration: 0.2 } }}
             transition={{ duration: 0.3, ease: ease.out }}
-            style={{ flexShrink: 0, position: 'relative', padding: '16px 14px 4px' }}
+            style={{
+              flexShrink: 0, position: 'relative',
+              padding: fullScreen ? '0 0 20px' : '16px 14px 4px',
+              ...(fullScreen ? { display: 'flex', justifyContent: 'center' } : {}),
+            }}
           >
-            <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(0,0,0,0.45)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
-              Try an example
-            </p>
-            <PromptCardStack
-              prompts={remainingCards}
-              onDismiss={() => setCardsDismissed(true)}
-              onSelect={(text) => {
-                const card = remainingCards.find(c => (c.prompt ?? c.segments.map(s => s.text).join('')) === text);
-                if (card) setTriedCardIds(prev => new Set([...prev, card.id]));
-                clearTimers();
-                startConversation(text, 1400);
-              }}
-            />
+            {fullScreen ? (
+              <div style={{ width: '100%', maxWidth: 712 }}>
+                <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(0,0,0,0.45)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
+                  Try an example
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {remainingCards.map((card) => {
+                    const label = card.segments.map(s => s.text).join('');
+                    const prompt = card.prompt ?? label;
+                    return (
+                      <motion.button
+                        key={card.id}
+                        whileHover={{ x: 3 }}
+                        whileTap={{ scale: 0.99 }}
+                        onClick={() => {
+                          setTriedCardIds(prev => new Set([...prev, card.id]));
+                          clearTimers();
+                          startConversation(prompt, 1400);
+                        }}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 10,
+                          padding: '5px 0', background: 'none', border: 'none',
+                          cursor: 'pointer', textAlign: 'left',
+                        }}
+                      >
+                        <span style={{ fontSize: 15, color: colors.primary, flexShrink: 0 }}>↳</span>
+                        <span style={{ fontSize: 14, color: colors.gray900 }}>{label}</span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <>
+                <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(0,0,0,0.45)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
+                  Try an example
+                </p>
+                <PromptCardStack
+                  prompts={remainingCards}
+                  onDismiss={() => setCardsDismissed(true)}
+                  onSelect={(text) => {
+                    const card = remainingCards.find(c => (c.prompt ?? c.segments.map(s => s.text).join('')) === text);
+                    if (card) setTriedCardIds(prev => new Set([...prev, card.id]));
+                    clearTimers();
+                    startConversation(text, 1400);
+                  }}
+                />
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Composer */}
-      <div style={{ padding: '8px 12px 6px', flexShrink: 0 }}>
+      <div style={{ padding: fullScreen ? '0 0 70px' : '8px 12px 6px', flexShrink: 0, ...(fullScreen ? { display: 'flex', justifyContent: 'center' } : {}) }}>
+        <div style={fullScreen ? { width: '100%', maxWidth: 712 } : {}}>
         <motion.div
           id="prompt-input"
           animate={displayPhase === 'done' ? {
@@ -522,6 +582,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
         <p style={{ fontSize: 10.5, color: colors.gray400, textAlign: 'center', marginTop: 6, paddingBottom: 2 }}>
           Rippling AI results may be inaccurate. Review before acting.
         </p>
+        </div>{/* end 712px centering wrapper */}
       </div>
 
       {/* Copilot suggestion chips — below the input, individually dismissable */}

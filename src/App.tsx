@@ -225,7 +225,13 @@ export default function App() {
                     : { opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }
                 }
                 transition={{ duration: 0.65, ease: [0.0, 0.0, 0.2, 1.0] }}
-                style={{
+                style={active === 'splash' && splashDone ? {
+                  position: 'fixed',
+                  inset: 0,
+                  zIndex: 20,
+                  borderRadius: 0,
+                  overflow: 'hidden',
+                } : {
                   height: 'calc(100vh - 110px)',
                   minHeight: 580,
                   borderRadius: 14,

@@ -282,6 +282,15 @@ export function RipplingShell({ chatDemoActive = false, ftuxPrompts, ftuxCards, 
 
   const hidden = { opacity: 0 };
 
+  // Full-screen mode when ftuxCards provided (splash post-transition)
+  if (ftuxCards && ftuxCards.length > 0) {
+    return (
+      <div style={{ width: '100%', height: '100%', background: colors.white }}>
+        <AIChatPanel showSuggestions={false} ftuxCards={ftuxCards} fullScreen />
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: 'flex', height: '100%', background: colors.gray50 }}>
 

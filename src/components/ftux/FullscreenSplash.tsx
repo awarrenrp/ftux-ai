@@ -461,16 +461,17 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                     {samplePrompts.map((p, i) => (
                       <motion.button
                         key={p.label}
-                        whileHover={{ scale: 1.04, background: 'rgba(255,255,255,0.12)' }}
+                        whileHover={{ scale: 1.04, background: '#f0c8f8' }}
                         whileTap={buttonTap}
                         onClick={() => handlePromptClick(i)}
                         style={{
                           padding: '7px 14px',
                           borderRadius: radii.full,
-                          background: 'rgba(255,255,255,0.06)',
-                          border: '1px solid rgba(255,255,255,0.12)',
-                          color: 'rgba(255,255,255,0.65)',
+                          background: '#EAB8F2',
+                          border: '1px solid rgba(255,255,255,0.25)',
+                          color: '#5A006E',
                           fontSize: 13,
+                          fontWeight: 600,
                           cursor: 'pointer',
                           backdropFilter: 'blur(8px)',
                         }}
