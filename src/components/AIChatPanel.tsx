@@ -57,11 +57,6 @@ const RESPONSES: Record<string, ResponseLine[]> = {
     { type: 'note',    text: 'Policy: 15 days/year · unused days expire Dec 31.' },
   ],
   // ── Try me prompts ──
-  "Compare my last few paychecks": [
-    { type: 'heading', text: 'Your Last 4 Paychecks' },
-    { type: 'chart',   text: 'Net pay · biweekly', bars: PAYCHECK_BARS },
-    { type: 'note',    text: 'Mar 16 reflects your merit raise (+12.8%) effective Mar 1.' },
-  ],
   "What would it cost me to visit the doctor": [
     { type: 'heading', text: 'Your Out-of-Pocket Cost to See a Doctor' },
     { type: 'subhead', text: 'Blue Shield of CA · PPO Gold' },
