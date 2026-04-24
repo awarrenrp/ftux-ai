@@ -59,6 +59,33 @@ const RESPONSES: Record<string, ResponseLine[]> = {
     { type: 'note',    text: 'Policy: 15 days/year · unused days expire Dec 31.' },
   ],
   // ── Try me prompts ──
+  "Analyze the last 12 months of employee growth and attrition by top level department": [
+    { type: 'heading', text: 'Employee Growth & Attrition — Last 12 Months' },
+    { type: 'subhead', text: 'All departments · Apr 2025 – Apr 2026' },
+    { type: 'bullet',  text: 'Engineering: +18 hires, 4 departures — net +14 (+22%)' },
+    { type: 'bullet',  text: 'Sales: +12 hires, 9 departures — net +3 (+5%)' },
+    { type: 'bullet',  text: 'People Ops: +4 hires, 2 departures — net +2 (+8%)' },
+    { type: 'bullet',  text: 'Finance: +3 hires, 1 departure — net +2 (+11%)' },
+    { type: 'note',    text: 'Highest attrition risk: Sales (42% turnover rate vs. 18% company avg).' },
+  ],
+  "Which employees in my department who started before this year began have not taken any days off this year?": [
+    { type: 'heading', text: '6 Employees with Zero PTO in 2026' },
+    { type: 'subhead', text: 'Started before Jan 1, 2026 · People Operations' },
+    { type: 'bullet',  text: 'Alex Chen — tenure 2y 4mo · 15 days available' },
+    { type: 'bullet',  text: 'Jordan Park — tenure 1y 8mo · 15 days available' },
+    { type: 'bullet',  text: 'Sam Rivera — tenure 3y 1mo · 20 days available' },
+    { type: 'bullet',  text: 'Casey Kim — tenure 1y 2mo · 15 days available' },
+    { type: 'bullet',  text: 'Morgan Lee — tenure 2y 9mo · 20 days available' },
+    { type: 'bullet',  text: 'Taylor Brooks — tenure 1y 6mo · 15 days available' },
+    { type: 'note',    text: 'Policy: unused days expire Dec 31. Consider sending a reminder.' },
+  ],
+  "Compare my last two paychecks and highlight any differences": [
+    { type: 'heading', text: 'Your Last Two Paychecks' },
+    { type: 'chart',   text: 'Net pay · biweekly', bars: PAYCHECK_BARS },
+    { type: 'bullet',  text: 'Apr 1: $4,620.00 net — no changes from prior period' },
+    { type: 'bullet',  text: 'Mar 15: $5,210.00 net — merit raise (+12.8%) applied Mar 1' },
+    { type: 'note',    text: 'Difference: +$590.00. Your new base salary is $135,460/yr.' },
+  ],
   "What would it cost me to visit the doctor": [
     { type: 'heading', text: 'Your Out-of-Pocket Cost to See a Doctor' },
     { type: 'subhead', text: 'Blue Shield of CA · PPO Gold' },
@@ -72,6 +99,14 @@ const RESPONSES: Record<string, ResponseLine[]> = {
     { type: 'body',    text: 'Here\'s a quick link to your handbook on file:' },
     { type: 'bullet',  text: 'Rippling Employee Handbook — v2.4 · Updated Jan 2026 · view →' },
     { type: 'note',    text: 'You can also find this under Documents in your Rippling profile.' },
+  ],
+  // ── Splash action prompt ──
+  "Create a PTO request for me for the 3rd week of June": [
+    { type: 'heading', text: 'Creating your time-off request…' },
+    { type: 'body',    text: 'I\'ve submitted a PTO request on your behalf:' },
+    { type: 'bullet',  text: 'Jun 16 – Jun 20, 2025 · 5 days · Paid Time Off' },
+    { type: 'bullet',  text: 'Your remaining balance after approval: 8 days' },
+    { type: 'note',    text: 'Your manager has been notified and your calendar has been blocked. You\'ll get an email once it\'s approved.' },
   ],
   // ── Welcome variant prompts ──
   "Help me understand my benefits": [
@@ -246,18 +281,9 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                 transition={{ duration: 0.4, ease: ease.out }}
                 style={{ marginBottom: 20 }}
               >
-                {/* Animated AI icon — spinning gradient ring */}
-                <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 38, height: 38, marginBottom: 16 }}>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 3.5, repeat: Infinity, ease: 'linear' }}
-                    style={{
-                      position: 'absolute', inset: 0, borderRadius: 11,
-                      background: 'conic-gradient(from 0deg, #7A005D, #C966A8, #F0B8E0, #7A005D)',
-                    }}
-                  />
-                  <div style={{ position: 'absolute', inset: 3, borderRadius: 8, background: colors.white }} />
-                  <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ position: 'absolute', top: 3, left: 3, width: 32, height: 32, borderRadius: 8, display: 'block', zIndex: 1 }} />
+                {/* AI icon */}
+                <div style={{ marginBottom: 16 }}>
+                  <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ width: 32, height: 32, borderRadius: 8, display: 'block' }} />
                 </div>
                 <p style={{ fontSize: 22, fontWeight: 500, color: colors.gray900, lineHeight: 1.2, marginBottom: 4 }}>Hi there,</p>
                 <p style={{ fontSize: 16, color: 'rgba(0,0,0,0.45)', lineHeight: 1.45 }}>What do you need help with?</p>
@@ -488,9 +514,9 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                 </div>
               </div>
             ) : (
-              <>
-                <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(0,0,0,0.45)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
-                  Try an example
+              <div style={fullScreen ? { width: '100%', maxWidth: 600 } : {}}>
+                <p style={{ fontSize: 13, fontWeight: 400, color: 'rgba(0,0,0,0.45)', marginBottom: 10 }}>
+                  {autoFirePrompt ? 'Try asking another question to Rippling AI' : 'Get started by asking your first question to Rippling AI'}
                 </p>
                 <PromptCardStack
                   prompts={remainingCards}
@@ -502,7 +528,7 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
                     startConversation(text, 1400);
                   }}
                 />
-              </>
+              </div>
             )}
           </motion.div>
         )}

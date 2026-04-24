@@ -278,19 +278,20 @@ function RipplingNavBar() {
       flexShrink: 0,
       width: '100%',
     }}>
-      {/* Left: logo + suite name */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px', flexShrink: 0 }}>
-        <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <img src="/rippling-ai-icon.png" alt="Rippling" style={{ width: 24, height: 24, borderRadius: 4 }} />
+      {/* Left: Rippling logo button + suite name */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 0, padding: '8px', flexShrink: 0 }}>
+        {/* Logo button */}
+        <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
+          <img src="/rippling-logo.png" alt="Rippling" style={{ width: 40, height: 40, objectFit: 'contain' }} />
         </div>
-        <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.25)', flexShrink: 0 }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 6px 0 10px', cursor: 'pointer' }}>
+        <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.25)', flexShrink: 0, margin: '0 8px' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 6px', cursor: 'pointer' }}>
           <span style={{ color: '#fff', fontSize: 15, fontWeight: 500, letterSpacing: '-0.1px' }}>Rippling AI</span>
           <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
             <path d="M3 4.5L6 7.5L9 4.5" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
-        <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.25)', flexShrink: 0 }} />
+        <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.25)', flexShrink: 0, margin: '0 8px' }} />
       </div>
 
       {/* Center: search */}
@@ -313,19 +314,30 @@ function RipplingNavBar() {
 
       {/* Right: actions + profile */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 0, padding: '0 8px 0 0', flexShrink: 0 }}>
-        {/* Icon buttons */}
-        {[
-          // Bell
-          <svg key="bell" width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5C9 2.5 5.5 5.2 5.5 9.5V13H12.5V9.5C12.5 5.2 9 2.5 9 2.5Z" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25" strokeLinejoin="round"/><path d="M7.2 13C7.2 14 8 14.8 9 14.8C10 14.8 10.8 14 10.8 13" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/><circle cx="12.5" cy="4" r="2.5" fill="#D580BD"/></svg>,
-          // Help
-          <svg key="help" width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/><path d="M7 7.2C7 6 7.9 5.2 9 5.2C10.1 5.2 11 6 11 7C11 8 10.2 8.5 9.5 9C9.2 9.3 9 9.5 9 10" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25" strokeLinecap="round"/><circle cx="9" cy="12" r="0.7" fill="rgba(255,255,255,0.65)"/></svg>,
-          // Grid
-          <svg key="grid" width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="3" y="3" width="5" height="5" rx="1" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/><rect x="10" y="3" width="5" height="5" rx="1" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/><rect x="3" y="10" width="5" height="5" rx="1" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/><rect x="10" y="10" width="5" height="5" rx="1" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/></svg>,
-        ].map((icon, i) => (
-          <div key={i} style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, cursor: 'pointer' }}>
-            {icon}
-          </div>
-        ))}
+        {/* Bell */}
+        <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, cursor: 'pointer' }}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2.5C9 2.5 5.5 5.2 5.5 9.5V13H12.5V9.5C12.5 5.2 9 2.5 9 2.5Z" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25" strokeLinejoin="round"/><path d="M7.2 13C7.2 14 8 14.8 9 14.8C10 14.8 10.8 14 10.8 13" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/><circle cx="12.5" cy="4" r="2.5" fill="#D580BD"/></svg>
+        </div>
+        {/* Help */}
+        <div style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, cursor: 'pointer' }}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25"/><path d="M7 7.2C7 6 7.9 5.2 9 5.2C10.1 5.2 11 6 11 7C11 8 10.2 8.5 9.5 9C9.2 9.3 9 9.5 9 10" stroke="rgba(255,255,255,0.65)" strokeWidth="1.25" strokeLinecap="round"/><circle cx="9" cy="12" r="0.7" fill="rgba(255,255,255,0.65)"/></svg>
+        </div>
+        {/* Rippling AI icon — slides in from the right, pushing divider + profile left */}
+        <motion.div
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: 40, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 280, damping: 18, delay: 0.5 }}
+          style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', flexShrink: 0 }}
+        >
+          <motion.div
+            initial={{ x: 48 }}
+            animate={{ x: 0 }}
+            transition={{ type: 'spring', stiffness: 280, damping: 18, delay: 0.5 }}
+            style={{ width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, cursor: 'pointer', flexShrink: 0 }}
+          >
+            <img src="/rippling-ai-icon.png" alt="Rippling AI" style={{ width: 26, height: 26, borderRadius: 6 }} />
+          </motion.div>
+        </motion.div>
         {/* Divider */}
         <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.25)', margin: '0 8px' }} />
         {/* Profile */}
@@ -364,7 +376,7 @@ export function RipplingShell({ chatDemoActive = false, ftuxPrompts, ftuxCards, 
       <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', background: colors.white }}>
         <RipplingNavBar />
         <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
-          <AIChatPanel showSuggestions={false} ftuxCards={ftuxCards} fullScreen inlineExamples={ftuxCardsInline} />
+          <AIChatPanel showSuggestions={false} ftuxCards={ftuxCards} fullScreen inlineExamples={ftuxCardsInline} autoFirePrompt={autoFirePrompt} />
         </div>
       </div>
     );

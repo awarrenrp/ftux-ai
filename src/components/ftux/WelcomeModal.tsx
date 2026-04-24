@@ -23,6 +23,8 @@ interface PromptCard {
   prompt?: string;
   /** Optional visual illustration rendered at the top of the card */
   illustration?: ReactNode;
+  /** Optional role/audience label badge */
+  tag?: string;
 }
 
 const prompts: PromptCard[] = [
@@ -392,6 +394,12 @@ export function PromptCardStack({
     <div>
       {/* Stack */}
       <div style={{ position: 'relative', height: CARD_H + 22, marginBottom: 14 }}>
+        {/* Dismiss button — sits above all cards in the stack, z-index clear of card stacking contexts */}
+        {onDismiss && (
+          <div style={{ position: 'absolute', top: 0, right: 0, zIndex: 100, pointerEvents: 'auto' }}>
+            <DismissAllButton onDismiss={onDismiss} />
+          </div>
+        )}
         {slotOrder.map((promptIdx, slot) => {
           const prompt = prompts[promptIdx];
           const cfg = SLOT_CFG[slot];
@@ -430,8 +438,6 @@ export function PromptCardStack({
             >
               {isFront && (
                 <>
-                  {/* Dismiss button — top right of front card */}
-                  {onDismiss && <DismissAllButton onDismiss={onDismiss} />}
                   {prompt.illustration ? (
                     /* ── Illustrated card layout ── */
                     <>
@@ -466,6 +472,25 @@ export function PromptCardStack({
                         {prompt.caption}
                       </p>
                     </>
+                  )}
+                  {/* Tag — pinned to bottom-right */}
+                  {!prompt.illustration && prompt.tag && (
+                    <span style={{
+                      position: 'absolute',
+                      bottom: 16,
+                      right: 14,
+                      fontSize: 10.5,
+                      fontWeight: 600,
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase',
+                      color: colors.primary,
+                      background: `${colors.primary}12`,
+                      borderRadius: 4,
+                      padding: '2px 6px',
+                      lineHeight: 1.4,
+                    }}>
+                      {prompt.tag}
+                    </span>
                   )}
                   {/* Arrows — always pinned to bottom-left */}
                   <div

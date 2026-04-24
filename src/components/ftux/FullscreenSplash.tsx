@@ -14,6 +14,7 @@ interface FullscreenSplashProps {
   onComplete: () => void;
   onGetStarted?: (remainingPrompts: string[]) => void;
   onExitToShell?: (remainingPrompts: string[]) => void;
+  onActionPrompt?: (prompt: string) => void;
 }
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -68,7 +69,7 @@ const T = {
 
 type ChatPhase = 'thinking' | 'streaming' | 'done';
 
-export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: FullscreenSplashProps) {
+export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell, onActionPrompt }: FullscreenSplashProps) {
   const [exiting, setExiting] = useState(false);
   const [paused, setPaused] = useState(false);
 
@@ -556,13 +557,13 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                           key="response"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
-                          style={{ display: 'flex', flexDirection: 'column', gap: 24 }}
+                          style={{ display: 'flex', flexDirection: 'column', gap: 48 }}
                         >
                           {/* Thinking completed label */}
                           <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}
+                            style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: -30 }}
                           >
                             <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
                               <circle cx="7" cy="7" r="6" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5"/>
@@ -580,6 +581,9 @@ export function FullscreenSplash({ onComplete, onGetStarted, onExitToShell }: Fu
                                 line={line}
                                 index={i}
                                 onQuestionsComplete={() => setCapActionsReady(true)}
+                                onActionPrompt={onActionPrompt}
+                                onGetStarted={onGetStarted}
+                                onComplete={onComplete}
                               />
                             );
                           })}
@@ -821,7 +825,7 @@ function CapQuestionsLine({ onDone }: { onDone?: () => void }) {
 
 // ─── Dark-themed response line ────────────────────────────────────────────────
 
-function DarkResponseLine({ line, index, onQuestionsComplete }: { line: ResponseLine; index: number; onQuestionsComplete?: () => void }) {
+function DarkResponseLine({ line, index, onQuestionsComplete, onActionPrompt, onGetStarted, onComplete }: { line: ResponseLine; index: number; onQuestionsComplete?: () => void; onActionPrompt?: (prompt: string) => void; onGetStarted?: (remaining: string[]) => void; onComplete?: () => void }) {
   const styleMap: Record<string, React.CSSProperties> = {
     heading: { fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.92)', marginTop: index > 0 ? 4 : 0, marginBottom: -16 },
     subhead:  { fontSize: 13.5, fontWeight: 600, color: 'rgba(255,255,255,0.75)' },
@@ -887,54 +891,42 @@ function DarkResponseLine({ line, index, onQuestionsComplete }: { line: Response
   if (line.type === 'cap-actions') {
     return (
       <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: ease.out }}>
-        <p style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', marginBottom: 4 }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.85)', marginBottom: 10 }}>
           Take actions
         </p>
-        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
-          PTO Request · Rippling notified your manager and blocked your calendar
-        </p>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.35, delay: 0.1 }}
+        {/* CTA button — animates in after a short delay */}
+        <motion.button
+          initial={{ opacity: 0, y: 6, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.35, delay: 0.15 }}
+          whileHover={{ background: 'rgba(255,255,255,0.1)', borderColor: 'rgba(255,255,255,0.25)' }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => {
+            const prompt = 'Create a PTO request for me for the 3rd week of June';
+            if (onActionPrompt) onActionPrompt(prompt);
+            setTimeout(() => {
+              if (onGetStarted) onGetStarted([]);
+              else if (onComplete) onComplete();
+            }, 200);
+          }}
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '10px 16px',
             borderRadius: 10,
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            padding: '12px 14px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 10,
+            background: 'rgba(255,255,255,0.07)',
+            border: '1px solid rgba(255,255,255,0.18)',
+            cursor: 'pointer',
+            fontSize: 13.5,
+            fontWeight: 500,
+            color: 'rgba(255,255,255,0.88)',
+            letterSpacing: '-0.1px',
           }}
         >
-          <div style={{ display: 'flex', gap: 16 }}>
-            {[{ label: 'Start', value: 'Jun 16' }, { label: 'End', value: 'Jun 20' }, { label: 'Days', value: '5' }].map(({ label, value }) => (
-              <div key={label}>
-                <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 2 }}>{label}</p>
-                <p style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,0.88)' }}>{value}</p>
-              </div>
-            ))}
-            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
-              <motion.div
-                initial={{ scale: 0, rotate: -20 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ duration: 0.4, delay: 0.3, type: 'spring', stiffness: 280, damping: 18 }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 5,
-                  padding: '5px 11px',
-                  borderRadius: radii.full,
-                  background: 'rgba(76,173,135,0.18)',
-                  border: '1px solid rgba(76,173,135,0.4)',
-                  fontSize: 11.5,
-                  fontWeight: 600,
-                  color: '#4CAD87',
-                }}
-              >
-                <span>✓</span> Approved
-              </motion.div>
-            </div>
-          </div>
-        </motion.div>
+          <span style={{ fontSize: 15 }}>✦</span>
+          Create a PTO request for me for the 3rd week of June
+        </motion.button>
       </motion.div>
     );
   }

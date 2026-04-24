@@ -30,6 +30,7 @@ export default function App() {
   const [key, setKey] = useState(0);
   const [splashDone, setSplashDone] = useState(false);
   const [splashExited, setSplashExited] = useState(false);
+  const [splashAutoPrompt, setSplashAutoPrompt] = useState<string | undefined>(undefined);
   // Welcome variant: after the user clicks "Use this", keep the shell visible
   // and auto-fire the selected prompt in the chat panel.
   const [welcomePrompt, setWelcomePrompt] = useState<string | null>(null);
@@ -40,6 +41,7 @@ export default function App() {
     setSplashDone(false);
     setSplashExited(false);
     setWelcomePrompt(null);
+    setSplashAutoPrompt(undefined);
   }
 
   function reset() {
@@ -47,6 +49,7 @@ export default function App() {
     setSplashDone(false);
     setSplashExited(false);
     setWelcomePrompt(null);
+    setSplashAutoPrompt(undefined);
   }
 
   // "Exit demo" dismisses the demo button but keeps the card stack visible
@@ -55,6 +58,11 @@ export default function App() {
   }
 
   function handleSplashGetStarted(_remainingPrompts: string[]) {
+    setSplashDone(true);
+  }
+
+  function handleSplashActionPrompt(prompt: string) {
+    setSplashAutoPrompt(prompt);
     setSplashDone(true);
   }
 
@@ -245,7 +253,7 @@ export default function App() {
                   chatDemoActive={(active === 'splash' || active === 'splash2') && splashDone && !splashExited}
                   ftuxCards={(active === 'splash' || active === 'splash2') && splashDone ? SPLASH_PROMPT_CARDS : undefined}
                   ftuxCardsInline={active === 'splash' && splashDone}
-                  autoFirePrompt={active === 'welcome' ? (welcomePrompt ?? undefined) : undefined}
+                  autoFirePrompt={active === 'welcome' ? (welcomePrompt ?? undefined) : ((active === 'splash' || active === 'splash2') ? (splashAutoPrompt ?? undefined) : undefined)}
                   buildReveal={(active === 'splash' || active === 'splash2') ? splashDone : undefined}
                 />
               </motion.div>
@@ -258,6 +266,7 @@ export default function App() {
                     onComplete={reset}
                     onGetStarted={handleSplashGetStarted}
                     onExitToShell={handleSplashExitToShell}
+                    onActionPrompt={handleSplashActionPrompt}
                   />
                 )}
 
@@ -283,22 +292,25 @@ export default function App() {
 
 const SPLASH_PROMPT_CARDS: PromptCard[] = [
   {
-    id: 'paystubs',
-    segments: [{ text: 'Compare my last few paychecks', type: 'text' }],
-    caption: 'Instantly surface your pay history',
-    prompt: 'Compare my last few paychecks',
+    id: 'growth',
+    segments: [{ text: 'Analyze the last 12 months of employee growth and attrition by top level department', type: 'text' }],
+    caption: 'Deep workforce analytics in plain English',
+    prompt: 'Analyze the last 12 months of employee growth and attrition by top level department',
+    tag: 'Admin',
   },
   {
-    id: 'doctor',
-    segments: [{ text: 'What would it cost me to visit the doctor', type: 'text' }],
-    caption: 'Understand your benefits in plain English',
-    prompt: 'What would it cost me to visit the doctor',
+    id: 'pto',
+    segments: [{ text: 'Which employees in my department who started before this year began have not taken any days off this year?', type: 'text' }],
+    caption: 'Spot patterns across your team instantly',
+    prompt: 'Which employees in my department who started before this year began have not taken any days off this year?',
+    tag: 'Admin',
   },
   {
-    id: 'handbook',
-    segments: [{ text: 'Take me to my employee handbook', type: 'text' }],
-    caption: 'Move around Rippling naturally',
-    prompt: 'Take me to my employee handbook',
+    id: 'paychecks',
+    segments: [{ text: 'Compare my last two paychecks and highlight any differences', type: 'text' }],
+    caption: 'Understand your pay at a glance',
+    prompt: 'Compare my last two paychecks and highlight any differences',
+    tag: 'Employee',
   },
 ];
 
