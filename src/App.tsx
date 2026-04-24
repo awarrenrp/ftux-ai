@@ -282,15 +282,15 @@ export default function App() {
 const SPLASH_PROMPT_CARDS: PromptCard[] = [
   {
     id: 'paystubs',
-    segments: [{ text: 'Compare my last 2 paystubs', type: 'text' }],
+    segments: [{ text: 'Compare my last few paychecks', type: 'text' }],
     caption: 'Instantly surface your pay history',
-    prompt: 'Compare my last 2 paystubs',
+    prompt: 'Compare my last few paychecks',
   },
   {
     id: 'doctor',
-    segments: [{ text: 'What will it cost me to visit the doctor', type: 'text' }],
+    segments: [{ text: 'What would it cost me to visit the doctor', type: 'text' }],
     caption: 'Understand your benefits in plain English',
-    prompt: 'What will it cost me to visit the doctor',
+    prompt: 'What would it cost me to visit the doctor',
   },
   {
     id: 'handbook',

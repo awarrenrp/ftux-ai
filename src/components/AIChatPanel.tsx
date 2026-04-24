@@ -57,14 +57,12 @@ const RESPONSES: Record<string, ResponseLine[]> = {
     { type: 'note',    text: 'Policy: 15 days/year · unused days expire Dec 31.' },
   ],
   // ── Try me prompts ──
-  "Compare my last 2 paystubs": [
-    { type: 'heading', text: 'Your Last 2 Paystubs' },
-    { type: 'subhead', text: 'Net pay · direct deposit' },
-    { type: 'bullet',  text: 'Apr 1, 2026 — $4,620.00 net' },
-    { type: 'bullet',  text: 'Mar 15, 2026 — $4,620.00 net' },
-    { type: 'note',    text: 'No change between periods. Your next payday is Apr 15.' },
+  "Compare my last few paychecks": [
+    { type: 'heading', text: 'Your Last 4 Paychecks' },
+    { type: 'chart',   text: 'Net pay · biweekly', bars: PAYCHECK_BARS },
+    { type: 'note',    text: 'Mar 16 reflects your merit raise (+12.8%) effective Mar 1.' },
   ],
-  "What will it cost me to visit the doctor": [
+  "What would it cost me to visit the doctor": [
     { type: 'heading', text: 'Your Out-of-Pocket Cost to See a Doctor' },
     { type: 'subhead', text: 'Blue Shield of CA · PPO Gold' },
     { type: 'bullet',  text: 'Primary care visit: $30 copay (deductible met)' },
@@ -457,8 +455,8 @@ export function AIChatPanel({ showSuggestions = true, highlightInput = false, ft
           >
             {fullScreen ? (
               <div style={{ width: '100%', maxWidth: 712 }}>
-                <p style={{ fontSize: 11, fontWeight: 600, color: 'rgba(0,0,0,0.45)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
-                  Try an example
+                <p style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)', marginBottom: 12 }}>
+                  Get started by asking your first question to Rippling AI
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {remainingCards.map((card) => {
